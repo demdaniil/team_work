@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Глоссарий: DDD & Microservices</title>
+<style>
+  body { font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6; max-width: 860px; margin: 40px auto; padding: 0 24px; color: #222; }
+  h1 { font-size: 28px; color: #1F3864; border-bottom: 3px solid #1F3864; padding-bottom: 8px; margin-top: 48px; }
+  h2 { font-size: 18px; color: #2E75B6; margin-top: 32px; }
+  .title { font-size: 32px; font-weight: bold; color: #1F3864; text-align: center; margin-bottom: 4px; }
+  .subtitle { font-size: 14px; color: #888; text-align: center; font-style: italic; margin-bottom: 48px; }
+  ul { list-style: none; padding-left: 0; }
+  ul li { padding: 5px 0 5px 20px; position: relative; }
+  ul li::before { content: "•"; position: absolute; left: 0; color: #2E75B6; }
+  ul li strong { color: #1F3864; }
+  sup { color: #2E75B6; font-size: 11px; }
+  sup a { color: #2E75B6; text-decoration: none; }
+  sup a:hover { text-decoration: underline; }
+
+  /* Intersection table */
+  table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+  th { background: #1F3864; color: #fff; padding: 10px 14px; text-align: left; }
+  td { padding: 9px 14px; border: 1px solid #ccc; }
+  tr:nth-child(even) td { background: #EBF3FB; }
+  tr:nth-child(odd) td { background: #fff; }
+
+  /* Footnotes */
+  .footnotes { margin-top: 60px; border-top: 1px solid #ccc; padding-top: 16px; }
+  .footnotes h2 { font-size: 15px; color: #555; margin-bottom: 12px; }
+  .footnote { font-size: 12px; color: #444; margin-bottom: 10px; display: flex; gap: 8px; }
+  .footnote-num { min-width: 22px; color: #2E75B6; font-weight: bold; }
+  .footnote-text { flex: 1; }
+  .footnote-back { color: #2E75B6; text-decoration: none; font-size: 11px; }
+</style>
+</head>
+<body>
+
+<div class="title">Глоссарий: DDD &amp; Microservices</div>
+<div class="subtitle">Эрик Эванс «Domain-Driven Design» · Крис Ричардсон «Microservices Patterns»</div>
+
+<h1>1. DDD (Eric Evans)</h1>
+
+<h2>Стратегический дизайн</h2>
+<ul>
+  <li><strong>Domain</strong> — предметная область бизнеса <sup><a href="#fn1" id="ref1">1</a></sup></li>
+  <li><strong>Subdomain</strong> — часть домена (Core / Supporting / Generic) <sup><a href="#fn2" id="ref2">2</a></sup></li>
+  <li><strong>Bounded Context</strong> — явная граница, внутри которой модель имеет однозначный смысл <sup><a href="#fn3" id="ref3">3</a></sup></li>
+  <li><strong>Ubiquitous Language</strong> — единый язык команды и кода <sup><a href="#fn4" id="ref4">4</a></sup></li>
+  <li><strong>Context Map</strong> — карта отношений между контекстами <sup><a href="#fn5" id="ref5">5</a></sup></li>
+</ul>
+
+<h2>Тактический дизайн</h2>
+<ul>
+  <li><strong>Entity</strong> — объект с уникальной идентичностью <sup><a href="#fn6" id="ref6">6</a></sup></li>
+  <li><strong>Value Object</strong> — неизменяемый объект без идентичности <sup><a href="#fn7" id="ref7">7</a></sup></li>
+  <li><strong>Aggregate</strong> — кластер Entity/VO с единым Aggregate Root <sup><a href="#fn8" id="ref8">8</a></sup></li>
+  <li><strong>Repository</strong> — абстракция доступа к агрегатам <sup><a href="#fn9" id="ref9">9</a></sup></li>
+  <li><strong>Domain Event</strong> — факт, случившийся в домене <sup><a href="#fn10" id="ref10">10</a></sup></li>
+  <li><strong>Domain Service</strong> — логика, не принадлежащая конкретной сущности <sup><a href="#fn11" id="ref11">11</a></sup></li>
+</ul>
+
+<h1>2. Microservices (Chris Richardson)</h1>
+
+<h2>Декомпозиция</h2>
+<ul>
+  <li><strong>Service</strong> — автономный процесс с собственной БД <sup><a href="#fn12" id="ref12">12</a></sup></li>
+  <li><strong>Decompose by Subdomain / Business Capability</strong> — стратегии нарезки сервисов <sup><a href="#fn13" id="ref13">13</a></sup></li>
+  <li><strong>Single Responsibility</strong> — один сервис, одна причина меняться <sup><a href="#fn14" id="ref14">14</a></sup></li>
+</ul>
+
+<h2>Взаимодействие</h2>
+<ul>
+  <li><strong>Synchronous vs Asynchronous Messaging</strong> — REST/gRPC против брокеров (Kafka, RabbitMQ) <sup><a href="#fn15" id="ref15">15</a></sup></li>
+  <li><strong>API Gateway</strong> — единая точка входа для клиентов <sup><a href="#fn16" id="ref16">16</a></sup></li>
+  <li><strong>Service Discovery</strong> — динамический поиск инстансов <sup><a href="#fn17" id="ref17">17</a></sup></li>
+</ul>
+
+<h2>Данные и согласованность</h2>
+<ul>
+  <li><strong>Database per Service</strong> — каждый сервис владеет своей схемой <sup><a href="#fn18" id="ref18">18</a></sup></li>
+  <li><strong>Saga</strong> — распределённая транзакция через цепочку событий/команд <sup><a href="#fn19" id="ref19">19</a></sup></li>
+  <li><strong>CQRS</strong> — разделение модели чтения и записи <sup><a href="#fn20" id="ref20">20</a></sup></li>
+  <li><strong>Event Sourcing</strong> — состояние = лог событий <sup><a href="#fn21" id="ref21">21</a></sup></li>
+</ul>
+
+<h2>Надёжность</h2>
+<ul>
+  <li><strong>Circuit Breaker</strong> — защита от каскадных отказов <sup><a href="#fn22" id="ref22">22</a></sup></li>
+  <li><strong>Idempotency</strong> — безопасная повторная обработка сообщений <sup><a href="#fn23" id="ref23">23</a></sup></li>
+  <li><strong>Outbox Pattern</strong> — атомарная публикация событий вместе с записью в БД <sup><a href="#fn24" id="ref24">24</a></sup></li>
+</ul>
+
+<h1>3. Точки пересечения</h1>
+<table>
+  <thead>
+    <tr><th>DDD</th><th>Microservices</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Bounded Context</td><td>Service boundary</td></tr>
+    <tr><td>Domain Event</td><td>Async message / Event</td></tr>
+    <tr><td>Aggregate</td><td>Unit of consistency</td></tr>
+    <tr><td>Subdomain</td><td>Decomposition driver</td></tr>
+  </tbody>
+</table>
+
+<!-- FOOTNOTES -->
+<div class="footnotes">
+  <h2>Сноски</h2>
+
+  <div class="footnote" id="fn1">
+    <span class="footnote-num">1</span>
+    <span class="footnote-text"><strong>Domain</strong> — Предметная область бизнеса. Вся совокупность знаний, правил, процессов и терминологии, которыми оперирует бизнес. Например, для банка домен включает кредитование, счета, платежи, комплаенс. Разработчики и эксперты совместно исследуют домен, чтобы создать точную модель. <a class="footnote-back" href="#ref1">↩</a></span>
+  </div>
+
+  <div class="footnote" id="fn2">
+    <span class="footnote-num">2</span>
+    <span class="footnote-text"><strong>Subdomain</strong> — Часть домена с чёткой ответственностью. Делится на три типа: <em>Core Domain</em> — ключевое конкурентное преимущество компании (сюда вкладываются лучшие ресурсы); <em>Supporting Subdomain</em> — поддерживает Core, но не является уникальным; <em>Generic Subdomain</em> — стандартная функциональность, которую можно купить или взять готовой (например, авторизация, email-рассылка). <a class="footnote-back" href="#ref2">↩</a></span>
+  </div>
+
+  <div class="footnote" id="fn3">
+    <span class="footnote-num">3</span>
+    <span class="footnote-text"><strong>Bounded Context</strong> — Явная граница, внутри которой определённая доменная модель имеет однозначный и согласованный смысл. Один и тот же термин (например, «Клиент») в разных Bounded Context может означать разные вещи и иметь разные атрибуты. Граница фиксируется в коде, схеме данных и командной ответственности. <a class="footnote-back" href="#ref3">↩</a></span>
+  </div>
+
+  <div class="footnote" id="fn4">
+    <span class="footnote-num">4</span>
+    <span class="footnote-text"><strong>Ubiquitous Language</strong> — Единый язык, разделяемый всеми участниками команды (разработчиками, аналитиками, бизнесом) и буквально отражённый в коде: имена классов, методов, переменных. Цель — устранить «потери при переводе» между бизнес-требованиями и реализацией. Язык строго локален для своего Bounded Context. <a class="footnote-back" href="#ref4">↩</a></span>
+  </div>
+
+  <div class="footnote" id="fn5">
+    <span class="footnote-num">5</span>
+    <span class="footnote-text"><strong>Context Map</strong> — Документ или диаграмма, описывающая отношения и интеграции между Bounded Context. Фиксирует паттерны взаимодействия: Shared Kernel (общая часть модели), Customer-Supplier (один контекст зависит от другого), Conformist (подчинение чужой модели), Anti-Corruption Layer (трансляция чужой модели в свою), Open Host Service + Published Language (открытый API с формализованным протоколом). <a class="footnote-back" href="#ref5">↩</a></span>
+  </div>
+
+  <div class="footnote" id="fn6">
+    <span class="footnote-num">6</span>
+    <span class="footnote-text"><strong>Entity</strong> — Доменный объект, обладающий уникальной идентичностью, которая сохраняется на протяжении всего жизненного цикла, даже если его атрибуты меняются. Идентичность обычно выражается через ID. Пример: пользователь, заказ, банковский счёт. Два объекта с одинаковыми атрибутами, но разными ID — разные Entity. <a class="footnote-back" href="#ref6">↩</a></span>
+  </div>
+
+  <div class="footnote" id="fn7">
+    <span class="footnote-num">7</span>
+    <span class="footnote-text"><strong>Value Object</strong> — Объект, не имеющий идентичности; определяется исключительно своими атрибутами. Является неизменяемым (immutable). Два Value Object с одинаковыми атрибутами считаются равными. Примеры: денежная сумма (100 USD), адрес, координаты, диапазон дат. <a class="footnote-back" href="#ref7">↩</a></span>
+  </div>
+
+  <div class="footnote" id="fn8">
+    <span class="footnote-num">8</span>
+    <span class="footnote-text"><strong>Aggregate</strong> — Кластер связанных Entity и Value Object, рассматриваемый как единое целое с точки зрения изменений данных. Каждый Aggregate имеет один корневой объект — Aggregate Root, — через который происходит весь доступ извне. Aggregate определяет границу транзакционной согласованности: все инварианты гарантируются внутри одного Aggregate в рамках одной транзакции. <a class="footnote-back" href="#ref8">↩</a></span>
+  </div>
+
+  <div class="footnote" id="fn9">
+    <span class="footnote-num">9</span>
+    <span class="footnote-text"><strong>Repository</strong> — Абстракция, обеспечивающая доступ к агрегатам так, как если бы они находились в коллекции в памяти. Скрывает детали хранения (SQL, NoSQL, файлы). Позволяет коду домена оставаться независимым от инфраструктуры. Обычно предоставляет методы find, save, delete по идентификатору или критерию. <a class="footnote-back" href="#ref9">↩</a></span>
+  </div>
+
+  <div class="footnote" id="fn10">
+    <span class="footnote-num">10</span>
+    <span class="footnote-text"><strong>Domain Event</strong> — Факт, произошедший в домене и значимый для бизнеса, зафиксированный в прошедшем времени (например, OrderPlaced, PaymentConfirmed). Используется для интеграции между Bounded Context, запуска последующих бизнес-процессов и как основа для Event Sourcing. Является иммутабельным — произошедшее нельзя изменить. <a class="footnote-back" href="#ref10">↩</a></span>
+  </div>
+
+  <div class="footnote" id="fn11">
+    <span class="footnote-num">11</span>
+    <span class="footnote-text"><strong>Domain Service</strong> — Операция или логика предметной области, которая не принадлежит естественным образом ни одной Entity или Value Object. Обычно работает с несколькими агрегатами или выражает сложное бизнес-правило. Примеры: сервис перевода средств между счетами, расчёт маршрута доставки. <a class="footnote-back" href="#ref11">↩</a></span>
+  </div>
+
+  <div class="footnote" id="fn12">
+    <span class="footnote-num">12</span>
+    <span class="footnote-text"><strong>Service</strong> — Автономная, независимо развёртываемая единица функциональности с собственной базой данных и бизнес-ответственностью. Взаимодействует с другими сервисами только через API или сообщения. Позволяет командам разрабатывать, деплоить и масштабировать части системы независимо. <a class="footnote-back" href="#ref12">↩</a></span>
+  </div>
+
+  <div class="footnote" id="fn13">
+    <span class="footnote-num">13</span>
+    <span class="footnote-text"><strong>Decompose by Subdomain / Business Capability</strong> — Два основных подхода к определению границ микросервисов. Decompose by Subdomain опирается на DDD: каждый Bounded Context или Subdomain становится сервисом. Decompose by Business Capability ориентируется на бизнес-функции организации (billing, inventory, shipping). Оба подхода минимизируют зацепление и максимизируют связность внутри сервиса. <a class="footnote-back" href="#ref13">↩</a></span>
+  </div>
+
+  <div class="footnote" id="fn14">
+    <span class="footnote-num">14</span>
+    <span class="footnote-text"><strong>Single Responsibility Principle (для сервисов)</strong> — Каждый сервис должен иметь одну причину для изменения. Применительно к микросервисам: сервис отвечает за одну бизнес-возможность или поддомен, что минимизирует координацию при изменениях и снижает риск непреднамеренных поломок. <a class="footnote-back" href="#ref14">↩</a></span>
+  </div>
+
+  <div class="footnote" id="fn15">
+    <span class="footnote-num">15</span>
+    <span class="footnote-text"><strong>Synchronous vs Asynchronous Messaging</strong> — Два базовых стиля взаимодействия между сервисами. Synchronous (REST, gRPC): вызывающий сервис ждёт ответа; прост в реализации, но создаёт временну́ю связанность и риск каскадных отказов. Asynchronous Messaging (Kafka, RabbitMQ): сервис публикует сообщение и продолжает работу; обеспечивает слабую связанность, высокую отказоустойчивость, но усложняет трассировку и согласованность. <a class="footnote-back" href="#ref15">↩</a></span>
+  </div>
+
+  <div class="footnote" id="fn16">
+    <span class="footnote-num">16</span>
+    <span class="footnote-text"><strong>API Gateway</strong> — Единая точка входа для всех клиентов (мобильных, веб, сторонних). Выполняет маршрутизацию запросов к нужным сервисам, агрегацию ответов, аутентификацию, rate limiting, трансформацию протоколов. Избавляет клиентов от необходимости знать о внутренней топологии сервисов. Паттерн BFF (Backend for Frontend) предполагает отдельный Gateway для каждого типа клиента. <a class="footnote-back" href="#ref16">↩</a></span>
+  </div>
+
+  <div class="footnote" id="fn17">
+    <span class="footnote-num">17</span>
+    <span class="footnote-text"><strong>Service Discovery</strong> — Механизм динамического обнаружения сетевых адресов сервисов. В микросервисной среде инстансы сервисов появляются и исчезают (масштабирование, перезапуск). Client-side Discovery: клиент сам запрашивает реестр (Eureka, Consul) и выбирает инстанс. Server-side Discovery: балансировщик (AWS ALB, Kubernetes Service) делает это прозрачно. <a class="footnote-back" href="#ref17">↩</a></span>
+  </div>
+
+  <div class="footnote" id="fn18">
+    <span class="footnote-num">18</span>
+    <span class="footnote-text"><strong>Database per Service</strong> — Каждый микросервис владеет своей схемой данных и является единственным, кто может к ней обращаться напрямую. Обеспечивает слабую связанность: изменение схемы одного сервиса не затрагивает другие. Усложняет реализацию запросов, охватывающих несколько сервисов (требует API Composition или CQRS). <a class="footnote-back" href="#ref18">↩</a></span>
+  </div>
+
+  <div class="footnote" id="fn19">
+    <span class="footnote-num">19</span>
+    <span class="footnote-text"><strong>Saga</strong> — Паттерн реализации распределённых транзакций без использования двухфазного коммита (2PC). Длинная транзакция разбивается на последовательность локальных транзакций, каждая из которых публикует событие или команду для следующего шага. При отказе выполняются компенсирующие транзакции. Choreography Saga: сервисы реагируют на события друг друга. Orchestration Saga: центральный оркестратор управляет последовательностью шагов. <a class="footnote-back" href="#ref19">↩</a></span>
+  </div>
+
+  <div class="footnote" id="fn20">
+    <span class="footnote-num">20</span>
+    <span class="footnote-text"><strong>CQRS (Command Query Responsibility Segregation)</strong> — Паттерн разделения модели записи (Command) и модели чтения (Query). Команды изменяют состояние через Aggregate; для чтения создаются отдельные денормализованные проекции, оптимизированные под конкретные запросы. Особенно полезен в микросервисах для реализации запросов, охватывающих несколько сервисов. <a class="footnote-back" href="#ref20">↩</a></span>
+  </div>
+
+  <div class="footnote" id="fn21">
+    <span class="footnote-num">21</span>
+    <span class="footnote-text"><strong>Event Sourcing</strong> — Паттерн хранения состояния: вместо текущего состояния объекта хранится полная хронологическая последовательность Domain Event. Текущее состояние восстанавливается путём воспроизведения (replay) событий. Даёт полный аудит-лог, упрощает отладку и естественно интегрируется с CQRS. Усложняет эволюцию схемы событий и требует механизмов снапшотов при большом числе событий. <a class="footnote-back" href="#ref21">↩</a></span>
+  </div>
+
+  <div class="footnote" id="fn22">
+    <span class="footnote-num">22</span>
+    <span class="footnote-text"><strong>Circuit Breaker</strong> — Паттерн защиты от каскадных отказов. Обёртка вокруг вызова удалённого сервиса, которая отслеживает количество ошибок. При превышении порога «размыкает цепь»: последующие вызовы сразу возвращают ошибку (или fallback), не дожидаясь таймаута. После паузы пробует восстановить соединение. Реализации: Resilience4j, Hystrix. <a class="footnote-back" href="#ref22">↩</a></span>
+  </div>
+
+  <div class="footnote" id="fn23">
+    <span class="footnote-num">23</span>
+    <span class="footnote-text"><strong>Idempotency</strong> — Свойство операции: её многократное выполнение с одинаковыми входными данными даёт тот же результат, что и однократное. Критично в распределённых системах, где сообщения могут быть доставлены более одного раза (at-least-once delivery). Реализуется через уникальный идентификатор операции (idempotency key) и проверку уже обработанных запросов. <a class="footnote-back" href="#ref23">↩</a></span>
+  </div>
+
+  <div class="footnote" id="fn24">
+    <span class="footnote-num">24</span>
+    <span class="footnote-text"><strong>Outbox Pattern</strong> — Паттерн гарантированной публикации событий. Вместо прямой отправки события в брокер, сервис атомарно записывает и бизнес-данные, и событие в локальную таблицу Outbox в рамках одной транзакции с БД. Отдельный процесс (Message Relay) читает Outbox и публикует события в брокер. Исключает ситуацию, когда данные сохранены, а событие не отправлено (или наоборот). <a class="footnote-back" href="#ref24">↩</a></span>
+  </div>
+
+</div>
+</body>
+</html>
