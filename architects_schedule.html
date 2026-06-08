@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Расписание: Построение модели системы</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface2: #21263a;
+      --border: #2e3350;
+      --text: #e8eaf6;
+      --muted: #8b92b8;
+      --radius: 14px;
+
+      --domain: #6c63ff;
+      --aggregate: #43e97b;
+      --tech: #f7971e;
+      --break: #38f9d7;
+      --lunch: #f64f59;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 40px 20px 80px;
+    }
+
+    .container { max-width: 960px; margin: 0 auto; }
+
+    header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    .badge {
+      display: inline-block;
+      background: linear-gradient(135deg, #6c63ff22, #43e97b22);
+      border: 1px solid #6c63ff44;
+      color: var(--domain);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 5px 14px;
+      border-radius: 20px;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      font-size: clamp(22px, 4vw, 36px);
+      font-weight: 800;
+      line-height: 1.2;
+      background: linear-gradient(135deg, #e8eaf6 30%, #6c63ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 12px;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.6;
+      max-width: 580px;
+      margin: 0 auto 24px;
+    }
+
+    /* LEGEND */
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 40px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+
+    /* DAYS GRID */
+    .days-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 14px;
+      align-items: start;
+    }
+
+    .day-col { display: flex; flex-direction: column; gap: 6px; }
+
+    .day-header {
+      border-radius: 10px;
+      padding: 12px 14px;
+      text-align: center;
+      margin-bottom: 4px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .day-header::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+    }
+
+    .phase-1 .day-header { background: #6c63ff15; border: 1px solid #6c63ff44; }
+    .phase-1 .day-header::before { background: linear-gradient(90deg, #6c63ff, #a78bfa); }
+
+    .phase-2 .day-header { background: #f7971e15; border: 1px solid #f7971e44; }
+    .phase-2 .day-header::before { background: linear-gradient(90deg, #f7971e, #ffd200); }
+
+    .day-number {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 3px;
+    }
+
+    .phase-1 .day-number { color: #a78bfa; }
+    .phase-2 .day-number { color: #f7971e; }
+
+    .day-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.3;
+    }
+
+    /* SLOT */
+    .slot {
+      border-radius: 8px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      position: relative;
+    }
+
+    .slot-time {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+      opacity: 0.7;
+    }
+
+    .slot-title {
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1.3;
+      margin-bottom: 3px;
+    }
+
+    .slot-desc {
+      font-size: 11px;
+      line-height: 1.4;
+      opacity: 0.75;
+    }
+
+    /* SLOT TYPES */
+    .slot-domain {
+      background: #6c63ff12;
+      border-color: #6c63ff33;
+    }
+    .slot-domain .slot-time { color: #a78bfa; }
+    .slot-domain .slot-title { color: #e8eaf6; }
+    .slot-domain .slot-desc { color: #8b92b8; }
+
+    .slot-aggregate {
+      background: #43e97b12;
+      border-color: #43e97b33;
+    }
+    .slot-aggregate .slot-time { color: #43e97b; }
+    .slot-aggregate .slot-title { color: #e8eaf6; }
+    .slot-aggregate .slot-desc { color: #8b92b8; }
+
+    .slot-tech {
+      background: #f7971e12;
+      border-color: #f7971e33;
+    }
+    .slot-tech .slot-time { color: #f7971e; }
+    .slot-tech .slot-title { color: #e8eaf6; }
+    .slot-tech .slot-desc { color: #8b92b8; }
+
+    .slot-arch {
+      background: #f64f5912;
+      border-color: #f64f5933;
+    }
+    .slot-arch .slot-time { color: #f64f59; }
+    .slot-arch .slot-title { color: #e8eaf6; }
+    .slot-arch .slot-desc { color: #8b92b8; }
+
+    .slot-break {
+      background: #38f9d708;
+      border-color: #38f9d722;
+      opacity: 0.8;
+    }
+    .slot-break .slot-time { color: #38f9d7; }
+    .slot-break .slot-title { color: #8b92b8; }
+
+    .slot-lunch {
+      background: #ffffff08;
+      border-color: #ffffff15;
+      opacity: 0.8;
+    }
+    .slot-lunch .slot-time { color: var(--muted); }
+    .slot-lunch .slot-title { color: #8b92b8; }
+
+    .slot-retro {
+      background: #a78bfa12;
+      border-color: #a78bfa33;
+    }
+    .slot-retro .slot-time { color: #a78bfa; }
+    .slot-retro .slot-title { color: #e8eaf6; }
+    .slot-retro .slot-desc { color: #8b92b8; }
+
+    /* PHASE BANNER */
+    .phase-banner {
+      border-radius: 10px;
+      padding: 14px 20px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .phase-banner-1 {
+      background: #6c63ff12;
+      border: 1px solid #6c63ff33;
+    }
+
+    .phase-banner-2 {
+      background: #f7971e12;
+      border: 1px solid #f7971e33;
+    }
+
+    .phase-banner-icon { font-size: 22px; flex-shrink: 0; }
+
+    .phase-banner-title {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+
+    .phase-banner-1 .phase-banner-title { color: #a78bfa; }
+    .phase-banner-2 .phase-banner-title { color: #f7971e; }
+
+    .phase-banner-desc {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .phase-cols {
+      display: grid;
+      gap: 14px;
+      margin-bottom: 32px;
+    }
+
+    .phase-cols-2 { grid-template-columns: 1fr 1fr; }
+    .phase-cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+
+    /* PRINCIPLE */
+    .principle-card {
+      background: linear-gradient(135deg, #6c63ff15, #f7971e0a);
+      border: 1px solid #6c63ff33;
+      border-radius: var(--radius);
+      padding: 24px 32px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      margin-top: 32px;
+    }
+
+    .principle-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #6c63ff, #43e97b, #f7971e);
+    }
+
+    .principle-quote {
+      font-size: 16px;
+      font-weight: 600;
+      line-height: 1.7;
+      color: var(--text);
+    }
+
+    .principle-quote em {
+      font-style: normal;
+      background: linear-gradient(90deg, #6c63ff, #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    @media (max-width: 700px) {
+      .days-grid { grid-template-columns: 1fr; }
+      .phase-cols-2, .phase-cols-3 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="badge">Architects Workshop · 5 дней</div>
+    <h1>Построение модели системы<br>по Evans & Richardson</h1>
+    <p class="subtitle">Стратегическое и тактическое проектирование: от декомпозиции домена до технического решения на основе DDD и REST/Event-driven подходов</p>
+
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#6c63ff"></div> Стратегический DDD</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#43e97b"></div> Агрегаты и тактики</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#f7971e"></div> Техническое решение</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#f64f59"></div> Архитектура</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#a78bfa"></div> Ретро / Синк</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#38f9d7"></div> Перерыв</div>
+    </div>
+  </header>
+
+  <!-- PHASE 1 -->
+  <div class="phase-banner phase-banner-1">
+    <div class="phase-banner-icon">🗺️</div>
+    <div>
+      <div class="phase-banner-title">Фаза 1 — Дни 1–2: Стратегическое проектирование (Evans)</div>
+      <div class="phase-banner-desc">Event Storming → Bounded Contexts → Subdomain mapping → Агрегаты → Aggregate Roots → Context Map</div>
+    </div>
+  </div>
+
+  <div class="phase-cols phase-cols-2">
+
+    <!-- DAY 1 -->
+    <div class="day-col phase-1">
+      <div class="day-header">
+        <div class="day-number">День 1</div>
+        <div class="day-title">Домен и субдомены</div>
+      </div>
+
+      <div class="slot slot-domain">
+        <div class="slot-time">09:00 – 09:30</div>
+        <div class="slot-title">Открытие. Цели воркшопа</div>
+        <div class="slot-desc">Контекст задачи, правила работы, инструменты</div>
+      </div>
+
+      <div class="slot slot-domain">
+        <div class="slot-time">09:30 – 11:00</div>
+        <div class="slot-title">Big Picture Event Storming</div>
+        <div class="slot-desc">Выявляем доменные события, акторов и команды. Строим общую картину системы</div>
+      </div>
+
+      <div class="slot slot-break">
+        <div class="slot-time">11:00 – 11:15</div>
+        <div class="slot-title">☕ Перерыв</div>
+      </div>
+
+      <div class="slot slot-domain">
+        <div class="slot-time">11:15 – 13:00</div>
+        <div class="slot-title">Декомпозиция на субдомены</div>
+        <div class="slot-desc">Core / Supporting / Generic. Определяем границы ответственности. Первый набросок Subdomain Map</div>
+      </div>
+
+      <div class="slot slot-lunch">
+        <div class="slot-time">13:00 – 14:00</div>
+        <div class="slot-title">🍽️ Обед</div>
+      </div>
+
+      <div class="slot slot-domain">
+        <div class="slot-time">14:00 – 15:30</div>
+        <div class="slot-title">Bounded Contexts</div>
+        <div class="slot-desc">Проводим границы контекстов. Ubiquitous Language для каждого контекста. Разрывы и пересечения</div>
+      </div>
+
+      <div class="slot slot-break">
+        <div class="slot-time">15:30 – 15:45</div>
+        <div class="slot-title">☕ Перерыв</div>
+      </div>
+
+      <div class="slot slot-domain">
+        <div class="slot-time">15:45 – 17:15</div>
+        <div class="slot-title">Context Map</div>
+        <div class="slot-desc">Отношения между контекстами: ACL, Shared Kernel, Customer-Supplier, Conformist</div>
+      </div>
+
+      <div class="slot slot-retro">
+        <div class="slot-time">17:15 – 18:00</div>
+        <div class="slot-title">Синк дня</div>
+        <div class="slot-desc">Что получили, где разногласия, открытые вопросы</div>
+      </div>
+    </div>
+
+    <!-- DAY 2 -->
+    <div class="day-col phase-1">
+      <div class="day-header">
+        <div class="day-number">День 2</div>
+        <div class="day-title">Агрегаты и Aggregate Roots</div>
+      </div>
+
+      <div class="slot slot-retro">
+        <div class="slot-time">09:00 – 09:30</div>
+        <div class="slot-title">Ретро дня 1</div>
+        <div class="slot-desc">Корректируем карту, разрешаем вопросы с вечера</div>
+      </div>
+
+      <div class="slot slot-aggregate">
+        <div class="slot-time">09:30 – 11:00</div>
+        <div class="slot-title">Design-Level Event Storming</div>
+        <div class="slot-desc">Детальная проработка каждого контекста: команды, политики, read models</div>
+      </div>
+
+      <div class="slot slot-break">
+        <div class="slot-time">11:00 – 11:15</div>
+        <div class="slot-title">☕ Перерыв</div>
+      </div>
+
+      <div class="slot slot-aggregate">
+        <div class="slot-time">11:15 – 13:00</div>
+        <div class="slot-title">Выявление агрегатов</div>
+        <div class="slot-desc">Группируем сущности и события в агрегаты. Инварианты и транзакционные границы</div>
+      </div>
+
+      <div class="slot slot-lunch">
+        <div class="slot-time">13:00 – 14:00</div>
+        <div class="slot-title">🍽️ Обед</div>
+      </div>
+
+      <div class="slot slot-aggregate">
+        <div class="slot-time">14:00 – 15:30</div>
+        <div class="slot-title">Aggregate Roots</div>
+        <div class="slot-desc">Определяем корни агрегатов. Правила доступа через Root. Identity и жизненный цикл</div>
+      </div>
+
+      <div class="slot slot-break">
+        <div class="slot-time">15:30 – 15:45</div>
+        <div class="slot-title">☕ Перерыв</div>
+      </div>
+
+      <div class="slot slot-aggregate">
+        <div class="slot-time">15:45 – 17:15</div>
+        <div class="slot-title">Финализация доменной модели</div>
+        <div class="slot-desc">Сводная картина: субдомены → контексты → агрегаты → руты. Проверка целостности</div>
+      </div>
+
+      <div class="slot slot-retro">
+        <div class="slot-time">17:15 – 18:00</div>
+        <div class="slot-title">Синк фазы 1</div>
+        <div class="slot-desc">Итог стратегического проектирования. Передаём в фазу 2</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- PHASE 2 -->
+  <div class="phase-banner phase-banner-2">
+    <div class="phase-banner-icon">⚙️</div>
+    <div>
+      <div class="phase-banner-title">Фаза 2 — Дни 3–5: Техническое решение (Richardson + Evans)</div>
+      <div class="phase-banner-desc">API Design → Микросервисы → Паттерны интеграции → Persistence → Deployment View</div>
+    </div>
+  </div>
+
+  <div class="phase-cols phase-cols-3">
+
+    <!-- DAY 3 -->
+    <div class="day-col phase-2">
+      <div class="day-header">
+        <div class="day-number">День 3</div>
+        <div class="day-title">Сервисная декомпозиция и API</div>
+      </div>
+
+      <div class="slot slot-retro">
+        <div class="slot-time">09:00 – 09:30</div>
+        <div class="slot-title">Бриф фазы 2</div>
+        <div class="slot-desc">Переход от доменной модели к техническому дизайну</div>
+      </div>
+
+      <div class="slot slot-tech">
+        <div class="slot-time">09:30 – 11:00</div>
+        <div class="slot-title">Bounded Context → Microservice</div>
+        <div class="slot-desc">Маппинг контекстов на сервисы. Паттерны декомпозиции по Richardson: By Business Capability, By Subdomain</div>
+      </div>
+
+      <div class="slot slot-break">
+        <div class="slot-time">11:00 – 11:15</div>
+        <div class="slot-title">☕ Перерыв</div>
+      </div>
+
+      <div class="slot slot-tech">
+        <div class="slot-time">11:15 – 13:00</div>
+        <div class="slot-title">API Design</div>
+        <div class="slot-desc">REST по Richardson Maturity Model. Ресурсы на основе агрегатов. Контракты между сервисами</div>
+      </div>
+
+      <div class="slot slot-lunch">
+        <div class="slot-time">13:00 – 14:00</div>
+        <div class="slot-title">🍽️ Обед</div>
+      </div>
+
+      <div class="slot slot-tech">
+        <div class="slot-time">14:00 – 15:30</div>
+        <div class="slot-title">Inter-service Communication</div>
+        <div class="slot-desc">Sync (REST/gRPC) vs Async (Events). Когда что применять на нашей карте</div>
+      </div>
+
+      <div class="slot slot-break">
+        <div class="slot-time">15:30 – 15:45</div>
+        <div class="slot-title">☕ Перерыв</div>
+      </div>
+
+      <div class="slot slot-tech">
+        <div class="slot-time">15:45 – 17:15</div>
+        <div class="slot-title">Domain Events между контекстами</div>
+        <div class="slot-desc">Публикация событий из агрегатов. Event-driven интеграция контекстов из нашей Context Map</div>
+      </div>
+
+      <div class="slot slot-retro">
+        <div class="slot-time">17:15 – 18:00</div>
+        <div class="slot-title">Синк дня</div>
+        <div class="slot-desc">Решения по сервисам и API, открытые вопросы</div>
+      </div>
+    </div>
+
+    <!-- DAY 4 -->
+    <div class="day-col phase-2">
+      <div class="day-header">
+        <div class="day-number">День 4</div>
+        <div class="day-title">Persistence и паттерны</div>
+      </div>
+
+      <div class="slot slot-retro">
+        <div class="slot-time">09:00 – 09:30</div>
+        <div class="slot-title">Ретро дня 3</div>
+        <div class="slot-desc">Корректируем сервисную карту</div>
+      </div>
+
+      <div class="slot slot-arch">
+        <div class="slot-time">09:30 – 11:00</div>
+        <div class="slot-title">Persistence per Service</div>
+        <div class="slot-desc">Database-per-service. Выбор хранилища под каждый агрегат. Полиглотное хранение</div>
+      </div>
+
+      <div class="slot slot-break">
+        <div class="slot-time">11:00 – 11:15</div>
+        <div class="slot-title">☕ Перерыв</div>
+      </div>
+
+      <div class="slot slot-arch">
+        <div class="slot-time">11:15 – 13:00</div>
+        <div class="slot-title">CQRS и Event Sourcing</div>
+        <div class="slot-desc">Где на нашей модели оправдан CQRS. Event Sourcing для агрегатов с богатой историей</div>
+      </div>
+
+      <div class="slot slot-lunch">
+        <div class="slot-time">13:00 – 14:00</div>
+        <div class="slot-title">🍽️ Обед</div>
+      </div>
+
+      <div class="slot slot-arch">
+        <div class="slot-time">14:00 – 15:30</div>
+        <div class="slot-title">Saga / Process Manager</div>
+        <div class="slot-desc">Распределённые транзакции через Saga. Choreography vs Orchestration на примерах нашей модели</div>
+      </div>
+
+      <div class="slot slot-break">
+        <div class="slot-time">15:30 – 15:45</div>
+        <div class="slot-title">☕ Перерыв</div>
+      </div>
+
+      <div class="slot slot-arch">
+        <div class="slot-time">15:45 – 17:15</div>
+        <div class="slot-title">Resilience паттерны</div>
+        <div class="slot-desc">Circuit Breaker, Retry, Bulkhead, Outbox Pattern — применяем к нашей архитектуре</div>
+      </div>
+
+      <div class="slot slot-retro">
+        <div class="slot-time">17:15 – 18:00</div>
+        <div class="slot-title">Синк дня</div>
+        <div class="slot-desc">Решения по persistence и паттернам</div>
+      </div>
+    </div>
+
+    <!-- DAY 5 -->
+    <div class="day-col phase-2">
+      <div class="day-header">
+        <div class="day-number">День 5</div>
+        <div class="day-title">Финальная архитектура</div>
+      </div>
+
+      <div class="slot slot-retro">
+        <div class="slot-time">09:00 – 09:30</div>
+        <div class="slot-title">Ретро дня 4</div>
+        <div class="slot-desc">Финальные правки архитектурных решений</div>
+      </div>
+
+      <div class="slot slot-arch">
+        <div class="slot-time">09:30 – 11:00</div>
+        <div class="slot-title">Deployment View</div>
+        <div class="slot-desc">Контейнеры, оркестрация, конфигурация. C4 Model: Container + Component диаграммы</div>
+      </div>
+
+      <div class="slot slot-break">
+        <div class="slot-time">11:00 – 11:15</div>
+        <div class="slot-title">☕ Перерыв</div>
+      </div>
+
+      <div class="slot slot-arch">
+        <div class="slot-time">11:15 – 13:00</div>
+        <div class="slot-title">Observability и операции</div>
+        <div class="slot-desc">Distributed tracing, метрики, логирование. Как мониторить нашу систему</div>
+      </div>
+
+      <div class="slot slot-lunch">
+        <div class="slot-time">13:00 – 14:00</div>
+        <div class="slot-title">🍽️ Обед</div>
+      </div>
+
+      <div class="slot slot-arch">
+        <div class="slot-time">14:00 – 15:30</div>
+        <div class="slot-title">Сборка финальной картины</div>
+        <div class="slot-desc">Полная архитектурная схема: домен → сервисы → интеграции → инфраструктура</div>
+      </div>
+
+      <div class="slot slot-break">
+        <div class="slot-time">15:30 – 15:45</div>
+        <div class="slot-title">☕ Перерыв</div>
+      </div>
+
+      <div class="slot slot-arch">
+        <div class="slot-time">15:45 – 17:15</div>
+        <div class="slot-title">ADR — Architecture Decision Records</div>
+        <div class="slot-desc">Фиксируем ключевые решения воркшопа. Контекст, решение, последствия</div>
+      </div>
+
+      <div class="slot slot-retro">
+        <div class="slot-time">17:15 – 18:00</div>
+        <div class="slot-title">🎯 Закрытие воркшопа</div>
+        <div class="slot-desc">Итоги 5 дней. Очередные шаги. Кто за что отвечает дальше</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="principle-card">
+    <div class="principle-quote">
+      <em>Сначала понять домен — потом проектировать систему.</em><br>
+      Техническое решение следует из модели, а не наоборот.
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
