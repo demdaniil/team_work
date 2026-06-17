@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>От автономности к управлениям</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface2: #21263a;
+      --border: #2e3350;
+      --accent: #6c63ff;
+      --accent2: #43e97b;
+      --accent3: #f7971e;
+      --text: #e8eaf6;
+      --muted: #8b92b8;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 40px 20px 80px;
+    }
+
+    .container { max-width: 900px; margin: 0 auto; }
+
+    header {
+      text-align: center;
+      margin-bottom: 52px;
+    }
+
+    .badge {
+      display: inline-block;
+      background: linear-gradient(135deg, #6c63ff22, #43e97b22);
+      border: 1px solid #6c63ff44;
+      color: var(--accent);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 5px 14px;
+      border-radius: 20px;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      font-size: clamp(26px, 4vw, 40px);
+      font-weight: 800;
+      line-height: 1.2;
+      background: linear-gradient(135deg, #e8eaf6 30%, #6c63ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 14px;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.7;
+      max-width: 580px;
+      margin: 0 auto;
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 0 0 36px;
+    }
+
+    .section { margin-bottom: 36px; }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .section-number {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+
+    .n1 { background: #f64f5922; color: #f64f59; border: 1px solid #f64f5944; }
+    .n2 { background: #6c63ff22; color: #6c63ff; border: 1px solid #6c63ff44; }
+    .n3 { background: #43e97b22; color: #43e97b; border: 1px solid #43e97b44; }
+    .n4 { background: #f7971e22; color: #f7971e; border: 1px solid #f7971e44; }
+
+    .section-title {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+    }
+
+    /* CONTEXT */
+    .context-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .context-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .context-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+    }
+
+    .ctx-problem::before { background: linear-gradient(90deg, #f64f59, #f7971e); }
+    .ctx-insight::before { background: linear-gradient(90deg, #6c63ff, #43e97b); }
+
+    .ctx-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .ctx-problem .ctx-label { color: #f64f59; }
+    .ctx-insight .ctx-label { color: #43e97b; }
+
+    .ctx-text {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .ctx-text strong { color: var(--text); }
+
+    /* FLOW */
+    .flow {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .flow-step {
+      display: flex;
+      gap: 20px;
+      position: relative;
+    }
+
+    .flow-left {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex-shrink: 0;
+      width: 44px;
+    }
+
+    .flow-circle {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+      z-index: 1;
+    }
+
+    .flow-line {
+      width: 2px;
+      flex: 1;
+      min-height: 24px;
+      margin: 4px 0;
+    }
+
+    .flow-step:last-child .flow-line { display: none; }
+
+    .flow-content {
+      padding-bottom: 28px;
+      flex: 1;
+      padding-top: 8px;
+    }
+
+    .flow-tag {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .flow-title {
+      font-size: 17px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .flow-desc {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 10px;
+    }
+
+    .flow-items {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .flow-items li {
+      font-size: 13px;
+      color: var(--muted);
+      display: flex;
+      gap: 8px;
+      line-height: 1.4;
+    }
+
+    .flow-items li span:first-child { flex-shrink: 0; color: var(--accent); }
+
+    /* FOCUS */
+    .focus-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    .focus-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+      text-align: center;
+    }
+
+    .focus-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+    }
+
+    .fc-1::before { background: linear-gradient(90deg, #6c63ff, #a78bfa); }
+    .fc-2::before { background: linear-gradient(90deg, #43e97b, #38f9d7); }
+    .fc-3::before { background: linear-gradient(90deg, #f7971e, #ffd200); }
+
+    .focus-icon { font-size: 28px; margin-bottom: 12px; display: block; }
+
+    .focus-title {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+
+    .focus-desc {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    /* RESULT */
+    .result-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .result-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+    }
+
+    .result-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      color: var(--muted);
+    }
+
+    .result-item {
+      display: flex;
+      gap: 10px;
+      font-size: 14px;
+      color: var(--muted);
+      padding: 6px 0;
+      border-bottom: 1px solid var(--border);
+      line-height: 1.4;
+      align-items: flex-start;
+    }
+
+    .result-item:last-child { border-bottom: none; }
+    .result-item span:first-child { flex-shrink: 0; }
+
+    /* PRINCIPLE */
+    .principle-card {
+      background: linear-gradient(135deg, #6c63ff15, #43e97b0a);
+      border: 1px solid #6c63ff33;
+      border-radius: var(--radius);
+      padding: 28px 32px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .principle-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #6c63ff, #43e97b, #f7971e);
+    }
+
+    .principle-quote {
+      font-size: 17px;
+      font-weight: 600;
+      line-height: 1.7;
+      color: var(--text);
+    }
+
+    .principle-quote em {
+      font-style: normal;
+      background: linear-gradient(90deg, #6c63ff, #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    @media (max-width: 620px) {
+      .context-grid, .focus-grid, .result-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="badge">Стратегия · Переходный план</div>
+    <h1>От автономности<br>к управлениям</h1>
+    <p class="subtitle">Автономность команд — не самоцель, а инструмент плавного перехода к сегментированному управлению. Используем текущий момент чтобы сформировать правильные границы и костяк будущих управлений.</p>
+  </header>
+
+  <!-- 1. КОНТЕКСТ -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number n1">1</div>
+      <div class="section-title">Контекст: почему важно действовать сейчас</div>
+    </div>
+    <div class="context-grid">
+      <div class="context-card ctx-problem">
+        <div class="ctx-label">⚠️ Риск</div>
+        <div class="ctx-text">
+          Два процесса запущены <strong>не синхронно</strong> — автономность стартовала раньше чем сложилась картина управлений. Границы ответственности ещё <strong>не закреплены</strong>. Если команды начнут брать сервисы хаотично — зоны ответственности сложатся случайно, и потом их будет больно переделывать.
+        </div>
+      </div>
+      <div class="context-card ctx-insight">
+        <div class="ctx-label">✓ Возможность</div>
+        <div class="ctx-text">
+          Границы ещё подвижны — это <strong>идеальное окно</strong>. Примерная картина того как должны выглядеть управления уже есть. Есть всё необходимое чтобы направить автономность <strong>в правильные границы</strong> прямо сейчас, пока ничего не закрепилось.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 2. ПЛАН -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number n2">2</div>
+      <div class="section-title">План перехода</div>
+    </div>
+    <div class="card">
+      <div class="flow">
+
+        <div class="flow-step">
+          <div class="flow-left">
+            <div class="flow-circle" style="background:#6c63ff22; border:2px solid #6c63ff44;">🗺️</div>
+            <div class="flow-line" style="background: linear-gradient(180deg, #6c63ff, #43e97b);"></div>
+          </div>
+          <div class="flow-content">
+            <div class="flow-tag" style="color:#a78bfa;">Шаг 1 — Уже сделано</div>
+            <div class="flow-title">Картина будущих управлений</div>
+            <div class="flow-desc">Примерное понимание того как должна выглядеть структура управлений уже есть. Это основа для всех дальнейших шагов — границы известны, осталось их закрепить на практике.</div>
+          </div>
+        </div>
+
+        <div class="flow-step">
+          <div class="flow-left">
+            <div class="flow-circle" style="background:#43e97b22; border:2px solid #43e97b44;">🎯</div>
+            <div class="flow-line" style="background: linear-gradient(180deg, #43e97b, #f7971e);"></div>
+          </div>
+          <div class="flow-content">
+            <div class="flow-tag" style="color:#43e97b;">Шаг 2 — Текущий момент</div>
+            <div class="flow-title">Автономность внутри правильных границ</div>
+            <div class="flow-desc">Раздаём автономность не хаотично, а в рамках уже намеченной структуры управлений. Каждая команда берёт под ответственность сервисы своего будущего управления.</div>
+            <ul class="flow-items">
+              <li><span>→</span><span>Зоны ответственности закрепляются в нужных границах</span></li>
+              <li><span>→</span><span>Команды начинают формироваться вокруг будущих управлений</span></li>
+              <li><span>→</span><span>Границы становятся привычными на практике — до официального старта</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="flow-step">
+          <div class="flow-left">
+            <div class="flow-circle" style="background:#f7971e22; border:2px solid #f7971e44;">⚙️</div>
+            <div class="flow-line" style="background: linear-gradient(180deg, #f7971e, #f64f59);"></div>
+          </div>
+          <div class="flow-content">
+            <div class="flow-tag" style="color:#f7971e;">Шаг 3 — Переходный период</div>
+            <div class="flow-title">Репетиция управлений</div>
+            <div class="flow-desc">Команды де-факто живут как будущие управления — без формального объявления. Формируется костяк: кто за что отвечает, где границы полномочий, как взаимодействуют смежные домены.</div>
+            <ul class="flow-items">
+              <li><span>→</span><span>Выявляются реальные точки взаимодействия между командами</span></li>
+              <li><span>→</span><span>Определяются лидеры внутри каждого будущего управления</span></li>
+              <li><span>→</span><span>Обкатываются процессы координации на живых задачах</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="flow-step">
+          <div class="flow-left">
+            <div class="flow-circle" style="background:#f64f5922; border:2px solid #f64f5944;">🏛️</div>
+            <div class="flow-line"></div>
+          </div>
+          <div class="flow-content">
+            <div class="flow-tag" style="color:#f64f59;">Шаг 4 — Целевое состояние</div>
+            <div class="flow-title">Формальный старт управлений</div>
+            <div class="flow-desc">Управления объявляются официально — но для команд это не революция, а просто название того что уже работает. Границы привычны, костяк сформирован, процессы обкатаны.</div>
+            <ul class="flow-items">
+              <li><span>→</span><span>Нет сопротивления — люди уже живут в этих границах</span></li>
+              <li><span>→</span><span>Нет хаоса — ownership давно распределён</span></li>
+              <li><span>→</span><span>Управления стартуют с работающим костяком команд</span></li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 3. ФОКУС -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number n3">3</div>
+      <div class="section-title">Три фокуса переходного периода</div>
+    </div>
+    <div class="focus-grid">
+      <div class="focus-card fc-1">
+        <span class="focus-icon">🗂️</span>
+        <div class="focus-title">Границы зон ответственности</div>
+        <div class="focus-desc">Каждая команда чётко понимает какие сервисы её, какие — нет. Нет серых зон и пересечений. Намеченные границы становятся живыми на практике.</div>
+      </div>
+      <div class="focus-card fc-2">
+        <span class="focus-icon">⚖️</span>
+        <div class="focus-title">Границы полномочий</div>
+        <div class="focus-desc">Что команда решает сама, где нужна координация с соседями, где эскалация. Автономность с явными правилами — не анархия.</div>
+      </div>
+      <div class="focus-card fc-3">
+        <span class="focus-icon">👥</span>
+        <div class="focus-title">Костяк команд</div>
+        <div class="focus-desc">Формируем ядро каждого будущего управления уже сейчас. Кто лидер, кто в команде, кто смотрит за границей с соседним доменом.</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 4. РЕЗУЛЬТАТ -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number n4">4</div>
+      <div class="section-title">Что получаем на выходе</div>
+    </div>
+    <div class="result-grid">
+      <div class="result-card">
+        <div class="result-label">К моменту старта управлений</div>
+        <div class="result-item"><span>✅</span><span>Команды привыкли к своим границам</span></div>
+        <div class="result-item"><span>✅</span><span>Ownership на сервисы распределён правильно</span></div>
+        <div class="result-item"><span>✅</span><span>Костяк каждого управления сформирован</span></div>
+        <div class="result-item"><span>✅</span><span>Процессы координации обкатаны вживую</span></div>
+        <div class="result-item"><span>✅</span><span>Лидеры управлений определены естественно</span></div>
+      </div>
+      <div class="result-card">
+        <div class="result-label">Чего избегаем</div>
+        <div class="result-item"><span>🚫</span><span>Хаотичный ownership не по доменным границам</span></div>
+        <div class="result-item"><span>🚫</span><span>Сопротивление при запуске управлений</span></div>
+        <div class="result-item"><span>🚫</span><span>Два процесса работающих против друг друга</span></div>
+        <div class="result-item"><span>🚫</span><span>Переделка границ после того как люди осели</span></div>
+        <div class="result-item"><span>🚫</span><span>Управления без реального костяка команд</span></div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <div class="principle-card">
+    <div class="principle-quote">
+      Автономность — это не цель, это <em>инструмент</em>.<br>
+      Мы используем её чтобы границы стали привычными<br>
+      до того как они станут официальными.
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
