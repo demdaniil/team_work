@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Roadmap · mr-notification-bot</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #21263a;
+    --border: #2e3350;
+    --text: #e8eaf6;
+    --muted: #8b92b8;
+    --radius: 14px;
+
+    --c1: #43e97b;
+    --c2: #6c63ff;
+    --c3: #f7971e;
+    --c4: #38f9d7;
+    --c5: #f64f59;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+    background:
+      radial-gradient(circle at 15% 0%, #6c63ff14, transparent 40%),
+      radial-gradient(circle at 85% 20%, #43e97b10, transparent 40%),
+      var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 48px 20px 100px;
+  }
+
+  .container { max-width: 880px; margin: 0 auto; }
+
+  header { text-align: center; margin-bottom: 60px; }
+
+  .badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #6c63ff22, #43e97b22);
+    border: 1px solid #6c63ff44;
+    color: #a78bfa;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 5px 14px;
+    border-radius: 20px;
+    margin-bottom: 20px;
+  }
+
+  h1 {
+    font-size: clamp(28px, 5vw, 44px);
+    font-weight: 800;
+    line-height: 1.15;
+    background: linear-gradient(135deg, #e8eaf6 30%, #6c63ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 16px;
+  }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 16px;
+    line-height: 1.6;
+    max-width: 560px;
+    margin: 0 auto;
+  }
+
+  /* TIMELINE */
+  .timeline {
+    position: relative;
+    padding-left: 46px;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 17px;
+    top: 10px;
+    bottom: 10px;
+    width: 2px;
+    background: linear-gradient(180deg, var(--c1), var(--c2), var(--c3), var(--c4), var(--c5));
+    opacity: 0.5;
+  }
+
+  .stage {
+    position: relative;
+    margin-bottom: 34px;
+  }
+
+  .stage:last-child { margin-bottom: 0; }
+
+  .stage-dot {
+    position: absolute;
+    left: -46px;
+    top: 4px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    font-weight: 800;
+    border: 2px solid var(--bg);
+    box-shadow: 0 0 0 2px currentColor;
+    background: var(--bg);
+    z-index: 1;
+  }
+
+  .s1 .stage-dot { color: var(--c1); }
+  .s2 .stage-dot { color: var(--c2); }
+  .s3 .stage-dot { color: var(--c3); }
+  .s4 .stage-dot { color: var(--c4); }
+  .s5 .stage-dot { color: var(--c5); }
+
+  .stage-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 26px 28px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .stage-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; bottom: 0;
+    width: 3px;
+  }
+
+  .s1 .stage-card::before { background: var(--c1); }
+  .s2 .stage-card::before { background: var(--c2); }
+  .s3 .stage-card::before { background: var(--c3); }
+  .s4 .stage-card::before { background: var(--c4); }
+  .s5 .stage-card::before { background: var(--c5); }
+
+  .stage-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 6px;
+    flex-wrap: wrap;
+  }
+
+  .stage-eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .s1 .stage-eyebrow { color: var(--c1); }
+  .s2 .stage-eyebrow { color: var(--c2); }
+  .s3 .stage-eyebrow { color: var(--c3); }
+  .s4 .stage-eyebrow { color: var(--c4); }
+  .s5 .stage-eyebrow { color: var(--c5); }
+
+  .stage-title {
+    font-size: 19px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .status-pill {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 20px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .status-done   { background: #43e97b1f; color: #43e97b; border: 1px solid #43e97b44; }
+  .status-plan   { background: #ffffff0d; color: var(--muted); border: 1px solid var(--border); }
+
+  .stage-lead {
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 12px 0 16px;
+  }
+
+  .stage-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+
+  .stage-list li {
+    font-size: 13.5px;
+    line-height: 1.55;
+    color: #c7cbe8;
+    display: flex;
+    gap: 10px;
+  }
+
+  .stage-list li::before {
+    content: '';
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    margin-top: 7px;
+    flex-shrink: 0;
+  }
+
+  .s1 .stage-list li::before { background: var(--c1); }
+  .s2 .stage-list li::before { background: var(--c2); }
+  .s3 .stage-list li::before { background: var(--c3); }
+  .s4 .stage-list li::before { background: var(--c4); }
+  .s5 .stage-list li::before { background: var(--c5); }
+
+  .stage-list b { color: var(--text); font-weight: 600; }
+
+  .depends {
+    margin-top: 16px;
+    font-size: 12px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .depends span {
+    font-weight: 700;
+    color: #c7cbe8;
+  }
+
+  footer {
+    text-align: center;
+    margin-top: 56px;
+    color: var(--muted);
+    font-size: 12px;
+  }
+
+  @media (max-width: 560px) {
+    .timeline { padding-left: 36px; }
+    .stage-dot { left: -36px; width: 30px; height: 30px; font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="timeline">
+
+    <!-- STAGE 1 -->
+    <div class="stage s1">
+      <div class="stage-dot">1</div>
+      <div class="stage-card">
+        <div class="stage-head">
+          <div>
+            <div class="stage-eyebrow">Итерация 1 · MVP</div>
+            <div class="stage-title">Автоматический контроль ревью MR</div>
+          </div>
+          <div class="status-pill status-done">✓ Готово</div>
+        </div>
+        <p class="stage-lead">
+          Команды больше не полагаются на то, что тимлид вручную помнит и проверяет, какие merge
+          request'ы «зависли» без внимания — бот сам находит такие MR и сообщает о них в рабочий чат.
+        </p>
+        <ul class="stage-list">
+          <li>Автоматическое обнаружение «зависших» MR: без движения слишком долго, без ревьюера, без комментариев в срок.</li>
+          <li>Уведомления в рабочие чаты компании (Express) без участия человека.</li>
+          <li>Гибкие правила: разные пороги для обычных задач, архитектурных задач и автотестов, на уровне команды, группы команд (КФГ) или департамента.</li>
+          <li>Учёт рабочего времени - таймеры не учитывают выходные дни.</li>
+          <li>Автосинхронизация оргструктуры (департамент → кфг → команда → сотрудник) из Jira.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- STAGE 2 -->
+    <div class="stage s2">
+      <div class="stage-dot">2</div>
+      <div class="stage-card">
+        <div class="stage-head">
+          <div>
+            <div class="stage-eyebrow">Итерация 2 · Тестовая среда</div>
+            <div class="stage-title">Развёртывание вне локальной среды разработчика</div>
+          </div>
+          <div class="status-pill status-plan">В планах</div>
+        </div>
+        <p class="stage-lead">
+          Убедиться, что сервис можно поднять и эксплуатировать как отдельный сервис
+        </p>
+        <ul class="stage-list">
+          <li>Отдельное окружение (test): своя БД PostgreSQL, тестовые креды к GitLab/Jira/Express.</li>
+          <li>Секреты (токен GitLab, пароль Jira, ключи Express, пароль БД) - в секрет-хранилище тестового контура.</li>
+          <li>Логи и алерты на сбои синка/уведомлений.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- STAGE 3 -->
+    <div class="stage s3">
+      <div class="stage-dot">3</div>
+      <div class="stage-card">
+        <div class="stage-head">
+          <div>
+            <div class="stage-eyebrow">Итерация 3 · Пилот</div>
+            <div class="stage-title">Проверка на реальных пользователях компании</div>
+          </div>
+          <div class="status-pill status-plan">В планах</div>
+        </div>
+        <p class="stage-lead">
+          Подтвердить пользу и точность бота на живых данных, прежде чем включать его на всю компанию.
+        </p>
+        <ul class="stage-list">
+          <li>1–2 пилотные команды с согласия тимлидов: реальный GitLab-проект, реальная Jira-команда.</li>
+          <li>Проверка точности сопоставления Jira ↔ GitLab (эвристика по username/email) - закрыть кейсы, где сотрудник не находится автоматически.</li>
+          <li>Сбор обратной связи по формулировкам и частоте уведомлений, корректировка порогов правил.</li>
+          <li>Решение о расширении на остальные команды/департаменты по итогам пилота.</li>
+        </ul>
+        <div class="depends">Зависит от <span>Итерации 2</span></div>
+      </div>
+    </div>
+
+    <!-- STAGE 4 -->
+    <div class="stage s4">
+      <div class="stage-dot">4</div>
+      <div class="stage-card">
+        <div class="stage-head">
+          <div>
+            <div class="stage-eyebrow">Итерация 4 · Самообслуживание</div>
+            <div class="stage-title">Настройка правил через чат с ботом</div>
+          </div>
+          <div class="status-pill status-plan">В планах</div>
+        </div>
+        <p class="stage-lead">
+          Сейчас правила уведомлений (пороги, чат, область действия) меняются напрямую в БД -
+          нужен «фронт» без БД и без релиза: тимлид(или руководитель) настраивает правила, просто общаясь с ботом
+          в Express.
+        </p>
+        <ul class="stage-list">
+          <li>Диалоговые команды в Express: создание/изменение правила (область - команда/КФГ/департамент, пороги по метрикам, чат назначения) без прямого доступа к БД.</li>
+          <li>Просмотр текущих правил и их порогов прямо в чате, без похода в базу.</li>
+          <li>Подтверждение перед применением изменения - бот переспрашивает, прежде чем сохранить.</li>
+          <li>Права доступа: кто может менять правила своей команды/департамента - нужна привязка отправителя Express к сотруднику и его роли.</li>
+          <li>Аудит изменений: кто, когда и какое правило изменил.</li>
+        </ul>
+        <div class="depends">Зависит от <span>Итерации 3</span></div>
+      </div>
+    </div>
+
+    <!-- STAGE 5 -->
+    <div class="stage s5">
+      <div class="stage-dot">5</div>
+      <div class="stage-card">
+        <div class="stage-head">
+          <div>
+            <div class="stage-eyebrow">Итерация 5 · Уведомления в ЛС</div>
+            <div class="stage-title">Персональные уведомления через webhook</div>
+          </div>
+          <div class="status-pill status-plan">В планах</div>
+        </div>
+        <p class="stage-lead">
+          Переход от периодической проверки «по расписанию» и группового чата к мгновенным
+          персональным уведомлениям по событиям GitLab.
+        </p>
+        <ul class="stage-list">
+          <li>HTTP-эндпоинт приёма GitLab webhook (создание/обновление MR, комментарии, смена draft/ready).</li>
+          <li>Персональный идентификатор чата Express для каждого сотрудника - сейчас <b>chat_id</b> есть только на уровне правила (групповой чат команды).</li>
+          <li>Адресация уведомления лично автору/ревьюеру, с опцией подписки/отписки.</li>
+        </ul>
+        <div class="depends">Зависит от <span>Итераций 2–4</span></div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>mr-notification-bot · docs/roadmap.html</footer>
+
+</div>
+</body>
+</html>
