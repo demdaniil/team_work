@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Что такое сабдомен</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface2: #21263a;
+      --border: #2e3350;
+      --text: #e8eaf6;
+      --muted: #8b92b8;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 40px 20px 80px;
+    }
+
+    .container { max-width: 900px; margin: 0 auto; }
+
+    header {
+      text-align: center;
+      margin-bottom: 52px;
+    }
+
+    .badge {
+      display: inline-block;
+      background: linear-gradient(135deg, #6c63ff22, #43e97b22);
+      border: 1px solid #6c63ff44;
+      color: #a78bfa;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 5px 14px;
+      border-radius: 20px;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      font-size: clamp(26px, 4vw, 40px);
+      font-weight: 800;
+      line-height: 1.2;
+      background: linear-gradient(135deg, #e8eaf6 30%, #6c63ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 14px;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.7;
+      max-width: 580px;
+      margin: 0 auto;
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 0 0 36px;
+    }
+
+    .section { margin-bottom: 36px; }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .section-number {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+
+    .n1 { background: #6c63ff22; color: #a78bfa; border: 1px solid #6c63ff44; }
+    .n2 { background: #43e97b22; color: #43e97b; border: 1px solid #43e97b44; }
+    .n3 { background: #f7971e22; color: #f7971e; border: 1px solid #f7971e44; }
+    .n4 { background: #38f9d722; color: #38f9d7; border: 1px solid #38f9d744; }
+    .n5 { background: #f64f5922; color: #f64f59; border: 1px solid #f64f5944; }
+    .n6 { background: #ffd20022; color: #ffd200; border: 1px solid #ffd20044; }
+
+    .section-title {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+    }
+
+    /* RESPONSIBILITY */
+    .resp-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    .resp-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .resp-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+    }
+
+    .rc-1::before { background: linear-gradient(90deg, #6c63ff, #a78bfa); }
+    .rc-2::before { background: linear-gradient(90deg, #43e97b, #38f9d7); }
+    .rc-3::before { background: linear-gradient(90deg, #f7971e, #ffd200); }
+
+    .resp-icon { font-size: 22px; margin-bottom: 10px; display: block; }
+
+    .resp-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+      color: var(--muted);
+    }
+
+    .resp-title {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .resp-desc {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    /* TEAM */
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    .team-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .team-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      margin: 0 auto 12px;
+    }
+
+    .team-role {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .team-title {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .team-desc {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    /* AUTHORITY */
+    .authority-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .authority-item {
+      border-radius: 10px;
+      padding: 18px 20px;
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+
+    .auth-own   { background: #43e97b0d; border: 1px solid #43e97b33; }
+    .auth-coord { background: #f7971e0d; border: 1px solid #f7971e33; }
+    .auth-esc   { background: #f64f590d; border: 1px solid #f64f5933; }
+
+    .auth-icon { font-size: 22px; flex-shrink: 0; margin-top: 2px; }
+
+    .auth-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .auth-own .auth-label   { color: #43e97b; }
+    .auth-coord .auth-label { color: #f7971e; }
+    .auth-esc .auth-label   { color: #f64f59; }
+
+    .auth-items {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .auth-items li {
+      font-size: 14px;
+      color: var(--muted);
+      display: flex;
+      gap: 8px;
+      line-height: 1.4;
+    }
+
+    .auth-items li span:first-child { flex-shrink: 0; }
+
+    /* PROCESSES */
+    .process-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    .process-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+    }
+
+    .process-icon { font-size: 20px; margin-bottom: 10px; display: block; }
+
+    .process-title {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .process-items {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .process-items li {
+      font-size: 13px;
+      color: var(--muted);
+      display: flex;
+      gap: 6px;
+      line-height: 1.4;
+    }
+
+    /* INTER */
+    .inter-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .inter-item {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px 20px;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+    }
+
+    .inter-icon { font-size: 22px; flex-shrink: 0; margin-top: 2px; }
+
+    .inter-title {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .inter-desc {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    /* TRANSITION */
+    .transition-card {
+      background: #ffd2000a;
+      border: 1px solid #ffd20033;
+      border-radius: var(--radius);
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .transition-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #ffd200, #f7971e);
+    }
+
+    .transition-banner {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .transition-tag {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      background: #ffd20022;
+      color: #ffd200;
+      border: 1px solid #ffd20044;
+      padding: 3px 10px;
+      border-radius: 6px;
+    }
+
+    .transition-note {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .transition-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .trans-item {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px 18px;
+    }
+
+    .trans-title {
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: #ffd200;
+    }
+
+    .trans-desc {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    /* PRINCIPLE */
+    .principle-card {
+      background: linear-gradient(135deg, #6c63ff15, #43e97b0a);
+      border: 1px solid #6c63ff33;
+      border-radius: var(--radius);
+      padding: 28px 32px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .principle-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #6c63ff, #43e97b, #f7971e);
+    }
+
+    .principle-quote {
+      font-size: 17px;
+      font-weight: 600;
+      line-height: 1.7;
+      color: var(--text);
+    }
+
+    .principle-quote em {
+      font-style: normal;
+      background: linear-gradient(90deg, #6c63ff, #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    @media (max-width: 640px) {
+      .resp-grid, .team-grid, .process-grid, .transition-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="badge">Организационный дизайн · v1.0</div>
+    <h1>Что такое сабдомен</h1>
+    <p class="subtitle">Формальное описание структуры, состава и принципов работы сабдомена — единицы команды с чёткими границами ответственности и полномочий.</p>
+  </header>
+
+  <!-- 1. ЗОНА ОТВЕТСТВЕННОСТИ -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number n1">1</div>
+      <div class="section-title">Зона ответственности</div>
+    </div>
+    <div class="resp-grid">
+      <div class="resp-card rc-1">
+        <span class="resp-icon">⚙️</span>
+        <div class="resp-label">Сервисы и кодовая база</div>
+        <div class="resp-title">Закреплённые сервисы и код</div>
+        <div class="resp-desc">За сабдоменом закреплены ключевые сервисы и сопряжённая с ними кодовая база в других сервисах — если таковая есть.</div>
+      </div>
+      <div class="resp-card rc-2">
+        <span class="resp-icon">🗄️</span>
+        <div class="resp-label">Данные</div>
+        <div class="resp-title">Владение данными</div>
+        <div class="resp-desc">Сабдомен владеет данными своей зоны. Внешний доступ к данным — только через явные контракты, не напрямую.</div>
+      </div>
+      <div class="resp-card rc-3">
+        <span class="resp-icon">🎯</span>
+        <div class="resp-label">Результат</div>
+        <div class="resp-title">Бизнес-результат</div>
+        <div class="resp-desc">Сабдомен отвечает не только за сервисы, но и за конкретный бизнес-результат своей зоны. Это главный критерий успеха.</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 2. СОСТАВ -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number n2">2</div>
+      <div class="section-title">Состав команды</div>
+    </div>
+    <div class="team-grid">
+      <div class="team-card">
+        <div class="team-avatar" style="background:#6c63ff22; border:1px solid #6c63ff44;">👤</div>
+        <div class="team-role" style="color:#a78bfa;">Лидер</div>
+        <div class="team-title">Лидер сабдомена</div>
+        <div class="team-desc">Принимает решения, отвечает за результат зоны. Официальная точка входа для других сабдоменов и для внешних запросов.</div>
+      </div>
+      <div class="team-card">
+        <div class="team-avatar" style="background:#43e97b22; border:1px solid #43e97b44;">👥</div>
+        <div class="team-role" style="color:#43e97b;">Команда</div>
+        <div class="team-title">Участники</div>
+        <div class="team-desc">Люди закреплённые за сабдоменом. Работают в границах своей зоны, участвуют в планировании и синках сабдомена.</div>
+      </div>
+      <div class="team-card">
+        <div class="team-avatar" style="background:#f7971e22; border:1px solid #f7971e44;">🏗️</div>
+        <div class="team-role" style="color:#f7971e;">Архитектор</div>
+        <div class="team-title">Архитектор / Тех лид</div>
+        <div class="team-desc">Отвечает за техническую целостность зоны. Следит за границами на уровне сервисов и контрактов. Точка входа для технических вопросов от соседних сабдоменов.</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 3. ПОЛНОМОЧИЯ -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number n3">3</div>
+      <div class="section-title">Полномочия</div>
+    </div>
+    <div class="card">
+      <div class="authority-list">
+        <div class="authority-item auth-own">
+          <div class="auth-icon">✅</div>
+          <div>
+            <div class="auth-label">Решает и делает сам</div>
+            <ul class="auth-items">
+              <li><span>→</span><span>Code review по своей кодовой базе — проводится внутри команды сабдомена</span></li>
+              <li><span>→</span><span>Релиз своих сервисов — сабдомен сам принимает решение когда и что выпускать</span></li>
+              <li><span>→</span><span>Внутренние технические решения не затрагивающие соседей</span></li>
+            </ul>
+          </div>
+        </div>
+        <div class="authority-item auth-coord">
+          <div class="auth-icon">🤝</div>
+          <div>
+            <div class="auth-label">Согласует с соседями</div>
+            <ul class="auth-items">
+              <li><span>→</span><span>Изменения контрактов — API, события, структура данных — затрагивающие другие сабдомены</span></li>
+              <li><span>→</span><span>Технические решения влияющие на общую архитектуру — через архитекторов</span></li>
+              <li><span>→</span><span>Работа с общими ресурсами и зависимостями</span></li>
+            </ul>
+          </div>
+        </div>
+        <div class="authority-item auth-esc">
+          <div class="auth-icon">⬆️</div>
+          <div>
+            <div class="auth-label">Эскалирует</div>
+            <ul class="auth-items">
+              <li><span>→</span><span>Нет консенсуса между сабдоменами по спорному вопросу</span></li>
+              <li><span>→</span><span>Изменение затрагивает несколько сабдоменов одновременно</span></li>
+              <li><span>→</span><span>Решение выходит за рамки полномочий сабдомена</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 4. ВНУТРЕННИЕ ПРОЦЕССЫ -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number n4">4</div>
+      <div class="section-title">Внутренние процессы</div>
+    </div>
+    <div class="process-grid">
+      <div class="process-card">
+        <span class="process-icon">📋</span>
+        <div class="process-title">Планирование</div>
+        <ul class="process-items">
+          <li><span>→</span><span>Спринты с явными целями</span></li>
+          <li><span>→</span><span>Бэклог задач и гипотез</span></li>
+          <li><span>→</span><span>WIP-лимит на активные темы</span></li>
+          <li><span>→</span><span>Один драйвер — одна тема</span></li>
+        </ul>
+      </div>
+      <div class="process-card">
+        <span class="process-icon">🔄</span>
+        <div class="process-title">Синхронизация</div>
+        <ul class="process-items">
+          <li><span>→</span><span>Дейли внутри команды</span></li>
+          <li><span>→</span><span>Регулярный синк по прогрессу</span></li>
+          <li><span>→</span><span>Ретро по итогам спринта</span></li>
+          <li><span>→</span><span>After Sync резюме с очередными шагами</span></li>
+        </ul>
+      </div>
+      <div class="process-card">
+        <span class="process-icon">📢</span>
+        <div class="process-title">Отчётность</div>
+        <ul class="process-items">
+          <li><span>→</span><span>Прогресс по результатам зоны</span></li>
+          <li><span>→</span><span>Статус на межсабдоменном синке</span></li>
+          <li><span>→</span><span>Явное информирование при изменениях затрагивающих соседей</span></li>
+        </ul>
+      </div>
+      <div class="process-card">
+        <span class="process-icon">🚨</span>
+        <div class="process-title">Дежурство и инциденты</div>
+        <ul class="process-items">
+          <li><span>→</span><span>Дежурство по своей кодовой базе и сервисам — внутри сабдомена</span></li>
+          <li><span>→</span><span>Разбор проблем на тестовых и боевых окружениях</span></li>
+          <li><span>→</span><span>Кодовая база закреплена — ответственность за стабильность тоже</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- БИЗНЕСОВЫЕ ЗАДАЧИ -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number n5">5</div>
+      <div class="section-title">Как бизнесовая задача разбивается по сабдоменам</div>
+    </div>
+    <div class="card">
+
+      <!-- FLOW -->
+      <div style="display:flex;flex-direction:column;gap:0;margin-bottom:24px;">
+
+        <div style="display:flex;gap:16px;">
+          <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;width:40px;">
+            <div style="width:40px;height:40px;border-radius:50%;background:#6c63ff22;border:2px solid #6c63ff44;display:flex;align-items:center;justify-content:center;font-size:18px;">📥</div>
+            <div style="width:2px;flex:1;min-height:20px;background:var(--border);margin:4px 0;"></div>
+          </div>
+          <div style="padding-bottom:22px;flex:1;padding-top:6px;">
+            <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#a78bfa;margin-bottom:6px;">Шаг 1</div>
+            <div style="font-size:15px;font-weight:700;margin-bottom:6px;">Общий пул задач</div>
+            <div style="font-size:14px;color:var(--muted);line-height:1.5;margin-bottom:10px;">Бизнесовая задача поступает в общий пул. Определяется наиболее подходящий сабдомен — по степени изменений и бизнесовой составляющей.</div>
+            <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;">
+              <div style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Кто определяет сабдомен — варианты:</div>
+              <div style="display:flex;flex-direction:column;gap:8px;">
+                <div style="display:flex;gap:10px;font-size:13px;color:var(--muted);line-height:1.4;">
+                  <span style="color:#a78bfa;font-weight:700;flex-shrink:0;">A</span>
+                  <span><strong style="color:var(--text);">Лидеры сабдоменов совместно</strong> — на межсабдоменном синке договариваются кому идёт задача</span>
+                </div>
+                <div style="display:flex;gap:10px;font-size:13px;color:var(--muted);line-height:1.4;">
+                  <span style="color:#43e97b;font-weight:700;flex-shrink:0;">B</span>
+                  <span><strong style="color:var(--text);">Сверху вниз</strong> — product owner или руководитель назначает сабдомен</span>
+                </div>
+                <div style="display:flex;gap:10px;font-size:13px;color:var(--muted);line-height:1.4;">
+                  <span style="color:#f7971e;font-weight:700;flex-shrink:0;">C</span>
+                  <span><strong style="color:var(--text);">Бизнес предлагает</strong> — сабдомены соглашаются или корректируют назначение</span>
+                </div>
+                <div style="margin-top:4px;font-size:12px;color:#f7971e;font-style:italic;">⚡ Конкретный вариант уточняется в процессе работы</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:16px;">
+          <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;width:40px;">
+            <div style="width:40px;height:40px;border-radius:50%;background:#43e97b22;border:2px solid #43e97b44;display:flex;align-items:center;justify-content:center;font-size:18px;">🔍</div>
+            <div style="width:2px;flex:1;min-height:20px;background:var(--border);margin:4px 0;"></div>
+          </div>
+          <div style="padding-bottom:22px;flex:1;padding-top:6px;">
+            <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#43e97b;margin-bottom:6px;">Шаг 2</div>
+            <div style="font-size:15px;font-weight:700;margin-bottom:6px;">Декомпозиция внутри сабдомена</div>
+            <div style="font-size:14px;color:var(--muted);line-height:1.5;">Ответственный сабдомен декомпозирует задачу. Определяется ключевая команда которая ведёт задачу. Выявляются части затрагивающие другие сабдомены.</div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:16px;">
+          <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;width:40px;">
+            <div style="width:40px;height:40px;border-radius:50%;background:#f7971e22;border:2px solid #f7971e44;display:flex;align-items:center;justify-content:center;font-size:18px;">📤</div>
+            <div style="width:2px;flex:1;min-height:20px;background:var(--border);margin:4px 0;"></div>
+          </div>
+          <div style="padding-bottom:22px;flex:1;padding-top:6px;">
+            <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#f7971e;margin-bottom:6px;">Шаг 3</div>
+            <div style="font-size:15px;font-weight:700;margin-bottom:6px;">Распределение декомпозитов</div>
+            <div style="font-size:14px;color:var(--muted);line-height:1.5;">Части задачи раскидываются в пулы соответствующих сабдоменов. На текущий момент — в общий пул департамента пока остальные сабдомены не сформированы.</div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:16px;">
+          <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;width:40px;">
+            <div style="width:40px;height:40px;border-radius:50%;background:#f64f5922;border:2px solid #f64f5944;display:flex;align-items:center;justify-content:center;font-size:18px;">🎯</div>
+          </div>
+          <div style="padding-bottom:0;flex:1;padding-top:6px;">
+            <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#f64f59;margin-bottom:6px;">Шаг 4</div>
+            <div style="font-size:15px;font-weight:700;margin-bottom:6px;">Выполнение и координация</div>
+            <div style="font-size:14px;color:var(--muted);line-height:1.5;">Каждый сабдомен берёт свою часть в бэклог и спринт. Ключевая команда следит за общим прогрессом и координирует зависимости между сабдоменами.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 6. ВЗАИМОДЕЙСТВИЕ МЕЖДУ УПРАВЛЕНИЯМИ -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number n6">6</div>
+      <div class="section-title">Взаимодействие между сабдоменами</div>
+    </div>
+    <div class="card">
+      <div class="inter-list">
+        <div class="inter-item">
+          <div class="inter-icon">🔁</div>
+          <div>
+            <div class="inter-title">Межуправленческий синк</div>
+            <div class="inter-desc">Регулярная синхронизация лидеров и архитекторов всех сабдоменов. Единое место где сверяются общие процессы, решаются пересечения и выравниваются стандарты. То что должно работать одинаково во всех сабдоменах — принимается здесь.</div>
+          </div>
+        </div>
+        <div class="inter-item">
+          <div class="inter-icon">🚪</div>
+          <div>
+            <div class="inter-title">Точки входа</div>
+            <div class="inter-desc">Любое взаимодействие между сабдоменами идёт через лидера или архитектора — не напрямую между участниками команд. Это сохраняет прозрачность и предотвращает неявные зависимости.</div>
+          </div>
+        </div>
+        <div class="inter-item">
+          <div class="inter-icon">📐</div>
+          <div>
+            <div class="inter-title">Общие стандарты</div>
+            <div class="inter-desc">Процессы и стандарты обязательные для всех сабдоменов фиксируются явно и принимаются совместно на межсабдоменном синке. Каждый сабдомен адаптирует их внутри, но не отменяет.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 6. ПЕРЕХОДНЫЙ ПЕРИОД -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number n1">7</div>
+      <div class="section-title">Переходный период</div>
+    </div>
+    <div class="transition-card">
+      <div class="transition-banner">
+        <span class="transition-tag">⏳ Временный блок</span>
+        <span class="transition-note">Действует пока не сформированы все сабдомены</span>
+      </div>
+      <div class="transition-grid">
+        <div class="trans-item">
+          <div class="trans-title">Точка контакта</div>
+          <div class="trans-desc">Лидер сабдомена — официальная точка контакта между сабдоменом и основным департаментом. Все запросы идут через него.</div>
+        </div>
+        <div class="trans-item">
+          <div class="trans-title">Общие ресурсы</div>
+          <div class="trans-desc">Явно фиксируется что пока остаётся общим — люди, сервисы, процессы — и на каких условиях сабдомен ими пользуется.</div>
+        </div>
+        <div class="trans-item">
+          <div class="trans-title">Эскалация</div>
+          <div class="trans-desc">Неразрешённые вопросы между сабдоменом и департаментом эскалируются на уровень выше по явному процессу.</div>
+        </div>
+        <div class="trans-item">
+          <div class="trans-title">Выход из переходного периода</div>
+          <div class="trans-desc">Блок перестаёт действовать когда все сабдомены сформированы и межуправленческий синк заменяет взаимодействие с департаментом.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <div class="principle-card">
+    <div class="principle-quote">
+      Сабдомен — это <em>команда с границами</em>.<br>
+      Чёткая зона, понятные полномочия, один лидер —<br>
+      всё остальное решается внутри.
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
