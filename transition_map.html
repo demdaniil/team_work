@@ -323,7 +323,7 @@
           <td class="cell-trans">
             <ul class="cell-items">
               <li><span class="dot-trans">·</span><span>Появляется одно направление — задачи в его зоне идут туда</span></li>
-              <li><span class="dot-trans">·</span><span>Декомпозиты от направления уходят в пул остального департамента</span></li>
+              <li><span class="dot-trans">·</span><span>Декомпозиты от направления (подзадачи не входящие в зону ответственности направления) — уходят в пул остального департамента</span></li>
               <li><span class="dot-trans">·</span><span>Всё вне границ направления — остаётся в департаменте как прежде</span></li>
             </ul>
           </td>
@@ -331,7 +331,7 @@
             <div class="tag tag-target">Цель</div>
             <ul class="cell-items">
               <li><span class="dot-future">·</span><span>Задача идёт в направление по степени изменений и бизнес-составляющей</span></li>
-              <li><span class="dot-future">·</span><span>Декомпозиты явно распределяются между направлениями</span></li>
+              <li><span class="dot-future">·</span><span>Декомпозиты (задачи не входящие в зону направления) явно распределяются между направлениями по ownership</span></li>
             </ul>
           </td>
         </tr>
@@ -351,15 +351,14 @@
           </td>
           <td class="cell-trans">
             <ul class="cell-items">
-              <li><span class="dot-trans">·</span><span>Регистратура по задачам направления — внутри него</span></li>
-              <li><span class="dot-trans">·</span><span>Всё остальное — в департаменте как прежде</span></li>
+              <li><span class="dot-trans">·</span><span>Процесс регистратуры не меняется</span></li>
+              <li><span class="dot-trans">·</span><span>Команды в регистратуре имеют право обратиться за консультацией к тех лидам направления</span></li>
             </ul>
           </td>
           <td class="cell-future">
             <div class="tag tag-target">Цель</div>
             <ul class="cell-items">
               <li><span class="dot-future">·</span><span>Регистратура проводится внутри профильного направления</span></li>
-              <li><span class="dot-future">·</span><span>Лидер направления отвечает за качество предварительной проработки</span></li>
               <li><span class="dot-future">·</span><span>Задачи затрагивающие несколько направлений — совместная регистратура с участием нужных лидеров</span></li>
             </ul>
           </td>
@@ -379,15 +378,15 @@
           </td>
           <td class="cell-trans">
             <ul class="cell-items">
-              <li><span class="dot-trans">·</span><span>Архитектор направления согласует решения внутри своей зоны</span></li>
-              <li><span class="dot-trans">·</span><span>Всё что выходит за границу — согласуется с департаментом</span></li>
+              <li><span class="dot-trans">·</span><span>Тех лид направления согласует решения внутри своей зоны</span></li>
+              <li><span class="dot-trans">·</span><span>Всё что выходит за границу — согласуется с департаментом по существующим регламентам согласования (они не меняются)</span></li>
             </ul>
           </td>
           <td class="cell-future">
             <div class="tag tag-target">Цель</div>
             <ul class="cell-items">
-              <li><span class="dot-future">·</span><span>Каждый направление имеет своего архитектора — точку входа для тех. вопросов</span></li>
-              <li><span class="dot-future">·</span><span>Общая архитектура согласуется между архитекторами направлений</span></li>
+              <li><span class="dot-future">·</span><span>Каждое направление имеет своего тех лида — точку входа для технических вопросов</span></li>
+              <li><span class="dot-future">·</span><span>Общая архитектура согласуется между тех лидами направлений — финальным согласователем выступает доменный архитектор</span></li>
               <li><span class="dot-future">·</span><span>Изменения контрактов — явное согласование между сторонами</span></li>
             </ul>
           </td>
@@ -456,8 +455,6 @@
           <td class="cell-now">
             <ul class="cell-items">
               <li><span class="dot-now">·</span><span>Кейсы раскиданы между исполнителями разных команд</span></li>
-              <li><span class="dot-now">·</span><span>Нет чёткой ответственности за конкретную зону регресса</span></li>
-              <li><span class="dot-now">·</span><span>Сложно отследить покрытие</span></li>
             </ul>
           </td>
           <td class="cell-trans">
@@ -516,14 +513,14 @@
           </td>
           <td class="cell-trans">
             <ul class="cell-items">
-              <li><span class="dot-trans">·</span><span>Дежурство по сервисам направления — внутри его команды</span></li>
-              <li><span class="dot-trans">·</span><span>Всё остальное — дежурство остаётся в департаменте</span></li>
+              <li><span class="dot-trans">·</span><span>Дежурство остаётся как прежде</span></li>
+              <li><span class="dot-trans">·</span><span>Дежурная команда может запросить помощь направления если проблема попадает в его зону</span></li>
             </ul>
           </td>
           <td class="cell-future">
             <div class="tag tag-target">Цель</div>
             <ul class="cell-items">
-              <li><span class="dot-future">·</span><span>Дежурство полностью внутри направления по своей кодовой базе</span></li>
+              <li><span class="dot-future">·</span><span>Дежурная команда собирается из представителей всех направлений — для выявления проблем по всей кодовой базе. При необходимости проблема разбирается совместно с конкретным направлением</span></li>
               <li><span class="dot-future">·</span><span>Разбор инцидентов на тест и бою — ответственность направления</span></li>
               <li><span class="dot-future">·</span><span>Кодовая база закреплена — ответственность за стабильность тоже</span></li>
             </ul>
@@ -545,15 +542,15 @@
           </td>
           <td class="cell-trans">
             <ul class="cell-items">
-              <li><span class="dot-trans">·</span><span>Направление формирует свой технический бэклог</span></li>
-              <li><span class="dot-trans">·</span><span>Технический долг вне границ направления остаётся в департаменте</span></li>
+              <li><span class="dot-trans">·</span><span>Работа с техническим бэклогом в целом не меняется</span></li>
+              <li><span class="dot-trans">·</span><span>Направление должно иметь возможность видеть свой технический бэклог — задачи относящиеся к его зоне ответственности</span></li>
             </ul>
           </td>
           <td class="cell-future">
             <div class="tag tag-target">Цель</div>
             <ul class="cell-items">
               <li><span class="dot-future">·</span><span>Каждое направление имеет свой технический бэклог</span></li>
-              <li><span class="dot-future">·</span><span>Направление само приоритизирует и отстаивает свой технический долг</span></li>
+              <li><span class="dot-future">·</span><span>Направление само отстаивает свой технический долг</span></li>
               <li><span class="dot-future">·</span><span>Прозрачная картина технического состояния по каждому направлению</span></li>
             </ul>
           </td>
@@ -562,6 +559,7 @@
       </tbody>
     </table>
   </div>
+
 
 </div>
 </body>

@@ -490,13 +490,13 @@
         <div class="team-avatar" style="background:#43e97b22; border:1px solid #43e97b44;">👥</div>
         <div class="team-role" style="color:#43e97b;">Команды</div>
         <div class="team-title">Закреплённые команды</div>
-        <div class="team-desc">Одна или несколько команд закреплённых за направлением. Работают в границах своей зоны, участвуют в планировании и синках направления.</div>
+        <div class="team-desc">Набор команд закреплённых за направлением. Работают в границах своей зоны, участвуют в планировании и синках направления.</div>
       </div>
       <div class="team-card">
-        <div class="team-avatar" style="background:#f7971e22; border:1px solid #f7971e44;">🏗️</div>
-        <div class="team-role" style="color:#f7971e;">Архитектор</div>
-        <div class="team-title">Архитектор / Тех лид</div>
-        <div class="team-desc">Отвечает за техническую целостность зоны. Следит за границами на уровне сервисов и контрактов. Точка входа для технических вопросов от соседних направлений.</div>
+        <div class="team-avatar" style="background:#f7971e22; border:1px solid #f7971e44;">⚙️</div>
+        <div class="team-role" style="color:#f7971e;">Тех лид</div>
+        <div class="team-title">Тех лид направления</div>
+        <div class="team-desc">Отвечает за техническую целостность зоны: архитектурные решения, качество кода, code review (решающее слово внутри направления), разрешение спорных технических вопросов. Следит за границами на уровне сервисов и контрактов. Точка входа для технических вопросов от соседних направлений. Работает в паре с лидером направления.</div>
       </div>
     </div>
   </div>
@@ -528,7 +528,7 @@
             <div class="auth-label">Согласует с соседями</div>
             <ul class="auth-items">
               <li><span>→</span><span>Изменения контрактов — API, события, структура данных — затрагивающие другие направления</span></li>
-              <li><span>→</span><span>Технические решения влияющие на общую архитектуру — через архитекторов</span></li>
+              <li><span>→</span><span>Технические решения влияющие на общую архитектуру — через тех лидов</span></li>
               <li><span>→</span><span>Работа с общими ресурсами и зависимостями</span></li>
             </ul>
           </div>
@@ -576,15 +576,6 @@
           <li><span>→</span><span>Ретро по итогам итерации</span></li>
           <li><span>→</span><span>Обмен опытом от тех лидов к команде — регулярно</span></li>
           <li><span>→</span><span>Инструмент для планирования технических задач наравне с бизнесовыми</span></li>
-        </ul>
-      </div>
-      <div class="process-card">
-        <span class="process-icon">📢</span>
-        <div class="process-title">Отчётность</div>
-        <ul class="process-items">
-          <li><span>→</span><span>Прогресс по результатам зоны</span></li>
-          <li><span>→</span><span>Статус на межнаправлениеном синке</span></li>
-          <li><span>→</span><span>Явное информирование при изменениях затрагивающих соседей</span></li>
         </ul>
       </div>
       <div class="process-card">
@@ -695,14 +686,14 @@
           <div class="inter-icon">🔁</div>
           <div>
             <div class="inter-title">Синк между направлениями</div>
-            <div class="inter-desc">Регулярная синхронизация лидеров и архитекторов всех направлений. Единое место где сверяются общие процессы, решаются пересечения и выравниваются стандарты. То что должно работать одинаково во всех направлениях — принимается здесь.</div>
+            <div class="inter-desc">Регулярная синхронизация лидеров и тех лидов всех направлений. Единое место где сверяются общие процессы, решаются пересечения и выравниваются стандарты. То что должно работать одинаково во всех направлениях — принимается здесь.</div>
           </div>
         </div>
         <div class="inter-item">
           <div class="inter-icon">🚪</div>
           <div>
             <div class="inter-title">Точки входа</div>
-            <div class="inter-desc">Любое взаимодействие между направлениями идёт через лидера или архитектора — не напрямую между участниками команд. Это сохраняет прозрачность и предотвращает неявные зависимости.</div>
+            <div class="inter-desc">Любое взаимодействие между направлениями идёт через лидера или тех лида — не напрямую между участниками команд. Это сохраняет прозрачность и предотвращает неявные зависимости.</div>
           </div>
         </div>
         <div class="inter-item">
@@ -719,43 +710,12 @@
   <hr class="divider">
 
   <!-- 6. ПЕРЕХОДНЫЙ ПЕРИОД -->
+
+
+  <!-- ЛИДЕР  <!-- ЛИДЕР НАПРАВЛЕНИЯ -->
   <div class="section">
     <div class="section-header">
-      <div class="section-number n1">7</div>
-      <div class="section-title">Переходный период</div>
-    </div>
-    <div class="transition-card">
-      <div class="transition-banner">
-        <span class="transition-tag">⏳ Временный блок</span>
-        <span class="transition-note">Действует пока не сформированы все направления</span>
-      </div>
-      <div class="transition-grid">
-        <div class="trans-item">
-          <div class="trans-title">Точка контакта</div>
-          <div class="trans-desc">Лидер направления — официальная точка контакта между направлением и основным департаментом. Все запросы идут через него.</div>
-        </div>
-        <div class="trans-item">
-          <div class="trans-title">Общие ресурсы</div>
-          <div class="trans-desc">Явно фиксируется что пока остаётся общим — люди, сервисы, процессы — и на каких условиях направление ими пользуется.</div>
-        </div>
-        <div class="trans-item">
-          <div class="trans-title">Эскалация</div>
-          <div class="trans-desc">Неразрешённые вопросы между направлением и департаментом эскалируются на уровень выше по явному процессу.</div>
-        </div>
-        <div class="trans-item">
-          <div class="trans-title">Выход из переходного периода</div>
-          <div class="trans-desc">Блок перестаёт действовать когда все направления сформированы и межуправленческий синк заменяет взаимодействие с департаментом.</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <hr class="divider">
-
-  <!-- ЛИДЕР НАПРАВЛЕНИЯ -->
-  <div class="section">
-    <div class="section-header">
-      <div class="section-number n2">8</div>
+      <div class="section-number n2">7</div>
       <div class="section-title">Роль лидера направления</div>
     </div>
     <div class="card">
@@ -782,17 +742,59 @@
           </div>
         </div>
         <div class="inter-item">
-          <div class="inter-icon">📊</div>
+          <div class="inter-icon">🤝</div>
           <div>
-            <div class="inter-title">Приоритизация</div>
-            <div class="inter-desc">Участвует в приоритизации задач направления, согласует с бизнесом. Не единолично — совместно с тим лидами и с учётом технического бэклога.</div>
+            <div class="inter-title">Связка с тим лидами</div>
+            <div class="inter-desc">Активно взаимодействует с тим лидами направления. Совместно с ними отвечает за развитие и рост участников команд, принимает решения влияющие на людей и результат.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- РОЛЬ ТЕХ ЛИДА -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number n3">8</div>
+      <div class="section-title">Роль тех лида направления</div>
+    </div>
+    <div class="card">
+      <div class="inter-list">
+        <div class="inter-item">
+          <div class="inter-icon">🏗️</div>
+          <div>
+            <div class="inter-title">Технический ownership</div>
+            <div class="inter-desc">Отвечает за техническую целостность зоны: архитектура сервисов, контракты, границы на уровне кода. Следит за тем чтобы технические решения внутри направления были последовательными и обоснованными.</div>
+          </div>
+        </div>
+        <div class="inter-item">
+          <div class="inter-icon">⚖️</div>
+          <div>
+            <div class="inter-title">Решение спорных вопросов</div>
+            <div class="inter-desc">При разногласиях по технической реализации внутри направления — решающее слово за тех лидом.</div>
+          </div>
+        </div>
+        <div class="inter-item">
+          <div class="inter-icon">🔍</div>
+          <div>
+            <div class="inter-title">Code review</div>
+            <div class="inter-desc">При разногласиях в code review внутри направления — решающее слово за тех лидом. Отвечает за качество кодовой базы в своей зоне.</div>
+          </div>
+        </div>
+        <div class="inter-item">
+          <div class="inter-icon">🔗</div>
+          <div>
+            <div class="inter-title">Техническая точка входа</div>
+            <div class="inter-desc">Все технические вопросы от соседних направлений идут через тех лида. Представляет направление на технических синках, согласует решения затрагивающие несколько направлений.</div>
           </div>
         </div>
         <div class="inter-item">
           <div class="inter-icon">🤝</div>
           <div>
-            <div class="inter-title">Связка с тим лидами</div>
-            <div class="inter-desc">Активно взаимодействует с тим лидами направления. Совместно с ними отвечает за развитие и рост участников команд, принимает решения влияющие на людей и результат.</div>
+            <div class="inter-title">Связка с лидером направления</div>
+            <div class="inter-desc">Работает в паре с лидером направления: тех лид закрывает техническую часть, лидер — бизнесовую. Совместно участвуют в приоритизации, развитии людей и принятии решений влияющих на результат.</div>
           </div>
         </div>
       </div>
