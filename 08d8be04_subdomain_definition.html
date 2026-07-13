@@ -440,7 +440,7 @@
   <div style="background:linear-gradient(135deg,#6c63ff15,#43e97b0a);border:1px solid #6c63ff33;border-radius:14px;padding:24px 32px;margin-bottom:40px;position:relative;overflow:hidden;">
     <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#6c63ff,#43e97b,#f7971e);"></div>
     <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#a78bfa;margin-bottom:10px;">Определение</div>
-    <div style="font-size:18px;font-weight:700;color:#e8eaf6;line-height:1.6;">Направление — структура, обеспечивающая <span style="background:linear-gradient(90deg,#6c63ff,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">полный цикл разработки</span> и <span style="background:linear-gradient(90deg,#43e97b,#38f9d7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">стабильность</span> в рамках своих границ, несущая ответственность за бизнес-результат своей зоны.</div>
+    <div style="font-size:18px;font-weight:700;color:#e8eaf6;line-height:1.6;">Направление — структура, обеспечивающая <span style="background:linear-gradient(90deg,#6c63ff,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">полный цикл разработки</span> и <span style="background:linear-gradient(90deg,#43e97b,#38f9d7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">стабильность</span> в рамках своих границ, несущая ответственность за реализацию бизнес-ценности.</div>
   </div>
 
   <!-- 1. ЗОНА ОТВЕТСТВЕННОСТИ -->
@@ -563,8 +563,6 @@
         <ul class="process-items">
           <li><span>→</span><span>Итерационное планирование с явными целями — формат определяется внутри направления</span></li>
           <li><span>→</span><span>Бэклог задач и гипотез</span></li>
-          <li><span>→</span><span>WIP-лимит на активные темы</span></li>
-          <li><span>→</span><span>Один драйвер — одна тема</span></li>
         </ul>
       </div>
       <div class="process-card">
@@ -664,7 +662,7 @@
           <div style="padding-bottom:0;flex:1;padding-top:6px;">
             <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#f64f59;margin-bottom:6px;">Шаг 4</div>
             <div style="font-size:15px;font-weight:700;margin-bottom:6px;">Выполнение и координация</div>
-            <div style="font-size:14px;color:var(--muted);line-height:1.5;">Каждый направление берёт свою часть в бэклог и спринт. Ключевая команда следит за общим прогрессом и координирует зависимости между направлениями.</div>
+            <div style="font-size:14px;color:var(--muted);line-height:1.5;">Каждый направление берёт свою часть в бэклог и планирует работу в рамках своего рабочего цикла. Ключевая команда следит за общим прогрессом и координирует зависимости между направлениями.</div>
           </div>
         </div>
 
@@ -693,7 +691,7 @@
           <div class="inter-icon">🚪</div>
           <div>
             <div class="inter-title">Точки входа</div>
-            <div class="inter-desc">Любое взаимодействие между направлениями идёт через лидера или тех лида — не напрямую между участниками команд. Это сохраняет прозрачность и предотвращает неявные зависимости.</div>
+            <div class="inter-desc">Любое взаимодействие между направлениями идёт через лидера или тех лида — не напрямую между участниками команд. Это сохраняет прозрачность и предотвращает неявные зависимости. В направлении может быть несколько тех лидов — в этом случае они совместно несут ответственность за техническую зону.</div>
           </div>
         </div>
         <div class="inter-item">
@@ -758,7 +756,7 @@
   <div class="section">
     <div class="section-header">
       <div class="section-number n3">8</div>
-      <div class="section-title">Роль тех лида направления</div>
+      <div class="section-title">Роль тех лида направления (один или несколько)</div>
     </div>
     <div class="card">
       <div class="inter-list">
@@ -773,7 +771,7 @@
           <div class="inter-icon">⚖️</div>
           <div>
             <div class="inter-title">Решение спорных вопросов</div>
-            <div class="inter-desc">При разногласиях по технической реализации внутри направления — решающее слово за тех лидом.</div>
+            <div class="inter-desc">При разногласиях по технической реализации внутри направления — решающее слово за тех лидом (или тех лидами совместно, если их несколько).</div>
           </div>
         </div>
         <div class="inter-item">
@@ -787,14 +785,14 @@
           <div class="inter-icon">🔗</div>
           <div>
             <div class="inter-title">Техническая точка входа</div>
-            <div class="inter-desc">Все технические вопросы от соседних направлений идут через тех лида. Представляет направление на технических синках, согласует решения затрагивающие несколько направлений.</div>
+            <div class="inter-desc">Все технические вопросы от соседних направлений идут через тех лида. Если тех лидов несколько — между ними распределяются зоны ответственности и один из них представляет направление на технических синках.</div>
           </div>
         </div>
         <div class="inter-item">
           <div class="inter-icon">🤝</div>
           <div>
             <div class="inter-title">Связка с лидером направления</div>
-            <div class="inter-desc">Работает в паре с лидером направления: тех лид закрывает техническую часть, лидер — бизнесовую. Совместно участвуют в приоритизации, развитии людей и принятии решений влияющих на результат.</div>
+            <div class="inter-desc">Работает в паре с лидером направления: тех лид (или тех лиды) закрывает техническую часть, лидер — бизнесовую. Совместно участвуют в приоритизации, развитии людей и принятии решений влияющих на результат.</div>
           </div>
         </div>
       </div>
