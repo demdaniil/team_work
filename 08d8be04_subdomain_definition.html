@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Что такое направление</title>
+  <title>Что такое субдомен</title>
   <style>
     :root {
       --bg: #0f1117;
@@ -440,7 +440,7 @@
   <div style="background:linear-gradient(135deg,#6c63ff15,#43e97b0a);border:1px solid #6c63ff33;border-radius:14px;padding:24px 32px;margin-bottom:40px;position:relative;overflow:hidden;">
     <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#6c63ff,#43e97b,#f7971e);"></div>
     <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#a78bfa;margin-bottom:10px;">Определение</div>
-    <div style="font-size:18px;font-weight:700;color:#e8eaf6;line-height:1.6;">Направление — структура, обеспечивающая <span style="background:linear-gradient(90deg,#6c63ff,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">полный цикл разработки</span> и <span style="background:linear-gradient(90deg,#43e97b,#38f9d7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">стабильность</span> в рамках своих границ, несущая ответственность за реализацию бизнес-ценности.</div>
+    <div style="font-size:18px;font-weight:700;color:#e8eaf6;line-height:1.6;">Субдомен - структура, обеспечивающая <span style="background:linear-gradient(90deg,#6c63ff,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">полный цикл разработки</span> и <span style="background:linear-gradient(90deg,#43e97b,#38f9d7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">стабильность</span> в рамках своих границ, несущая ответственность за реализацию бизнес-ценности.</div>
   </div>
 
   <!-- 1. ЗОНА ОТВЕТСТВЕННОСТИ -->
@@ -454,19 +454,23 @@
         <span class="resp-icon">⚙️</span>
         <div class="resp-label">Сервисы и кодовая база</div>
         <div class="resp-title">Закреплённые сервисы и код</div>
-        <div class="resp-desc">За направлением закреплены ключевые сервисы и сопряжённая с ними кодовая база в других сервисах — если таковая есть.</div>
+        <div class="resp-desc">За субдоменом закреплены ключевые сервисы и сопряжённая с ними кодовая база в других сервисах - если таковая есть.</div>
       </div>
       <div class="resp-card rc-2">
         <span class="resp-icon">🗄️</span>
         <div class="resp-label">Данные</div>
         <div class="resp-title">Владение данными</div>
-        <div class="resp-desc">Направление владеет данными своей зоны и определяет специализацию работы с ними. Внешний доступ — только через явные контракты, не напрямую.</div>
+        <div class="resp-desc">Субдомен владеет данными своей зоны и определяет специализацию работы с ними. Внешний доступ - только через явные контракты, не напрямую.<br><br>
+        <span style="font-size:12px;font-weight:700;color:#e8eaf6;">Что входит:</span><br>
+        <span style="font-size:12px;">· <b>БД</b> - таблицы и схемы закреплены за субдоменом, прямой доступ извне запрещён<br>
+        · <b>Документация</b> - субдомен ведёт актуальную документацию по своим сервисам и контрактам<br>
+        · <b>Virgo</b> - страницы базы знаний по зоне субдомена в его ответственности: создаёт, обновляет, архивирует</span></div>
       </div>
       <div class="resp-card rc-3">
         <span class="resp-icon">🎯</span>
         <div class="resp-label">Результат</div>
-        <div class="resp-title">Реализация Бизнес-ценности</div>
-        <div class="resp-desc">Направление отвечает не только за сервисы, но и за конкретную реализацию бизнес ценности своей зоны.</div>
+        <div class="resp-title">Бизнес-результат</div>
+        <div class="resp-desc">Субдомен отвечает не только за сервисы, но и за реализацию бизнес-ценности своей зоны. Это главный критерий успеха.</div>
       </div>
     </div>
   </div>
@@ -482,21 +486,21 @@
     <div class="team-grid">
       <div class="team-card">
         <div class="team-avatar" style="background:#6c63ff22; border:1px solid #6c63ff44;">👤</div>
-        <div class="team-role" style="color:#a78bfa;">Лидер</div>
-        <div class="team-title">Лидер направления</div>
-        <div class="team-desc">Принимает решения, отвечает за результат зоны. Официальная точка входа для других направлений и для внешних запросов.</div>
+        <div class="team-role" style="color:#a78bfa;">Руководитель</div>
+        <div class="team-title">Руководитель субдомена</div>
+        <div class="team-desc">Принимает решения, отвечает за результат зоны. Официальная точка входа для других субдоменов и для внешних запросов.</div>
       </div>
       <div class="team-card">
         <div class="team-avatar" style="background:#43e97b22; border:1px solid #43e97b44;">👥</div>
         <div class="team-role" style="color:#43e97b;">Команды</div>
         <div class="team-title">Закреплённые команды</div>
-        <div class="team-desc">Набор команд закреплённых за направлением. Работают в границах своей зоны, участвуют в планировании и синках направления.</div>
+        <div class="team-desc">Набор команд закреплённых за субдоменом. Работают в границах своей зоны, участвуют в планировании и синках субдомена.</div>
       </div>
       <div class="team-card">
         <div class="team-avatar" style="background:#f7971e22; border:1px solid #f7971e44;">⚙️</div>
         <div class="team-role" style="color:#f7971e;">Тех лид</div>
-        <div class="team-title">Тех лид направления</div>
-        <div class="team-desc">Отвечает за техническую целостность зоны: архитектурные решения, качество кода, code review (решающее слово внутри направления), разрешение спорных технических вопросов. Следит за границами на уровне сервисов и контрактов. Точка входа для технических вопросов от соседних направлений. Работает в паре с лидером направления.</div>
+        <div class="team-title">Тех лид субдомена</div>
+        <div class="team-desc">Отвечает за техническую целостность зоны: архитектурные решения, качество кода, code review (решающее слово внутри субдомена), разрешение спорных технических вопросов. Следит за границами на уровне сервисов и контрактов. Точка входа для технических вопросов от соседних субдоменов. Работает в паре с руководителем субдомена.</div>
       </div>
     </div>
   </div>
@@ -516,8 +520,8 @@
           <div>
             <div class="auth-label">Решает и делает сам</div>
             <ul class="auth-items">
-              <li><span>→</span><span>Code review по своей кодовой базе — проводится внутри команды направления</span></li>
-              <li><span>→</span><span>Направление контролирует и практикует релиз своих ключевых сервисов — в рамках согласованных с бизнесом сроков</span></li>
+              <li><span>→</span><span>Code review по своей кодовой базе - проводится внутри команды субдомена</span></li>
+              <li><span>→</span><span>Субдомен контролирует и практикует релиз своих ключевых сервисов - в рамках согласованных с бизнесом сроков</span></li>
               <li><span>→</span><span>Внутренние технические решения не затрагивающие соседей</span></li>
             </ul>
           </div>
@@ -527,8 +531,8 @@
           <div>
             <div class="auth-label">Согласует с соседями</div>
             <ul class="auth-items">
-              <li><span>→</span><span>Изменения контрактов — API, события, структура данных — затрагивающие другие направления</span></li>
-              <li><span>→</span><span>Технические решения влияющие на общую архитектуру — через тех лидов</span></li>
+              <li><span>→</span><span>Изменения контрактов - API, события, структура данных - затрагивающие другие субдомены</span></li>
+              <li><span>→</span><span>Технические решения влияющие на общую архитектуру - через тех лидов</span></li>
               <li><span>→</span><span>Работа с общими ресурсами и зависимостями</span></li>
             </ul>
           </div>
@@ -538,9 +542,9 @@
           <div>
             <div class="auth-label">Эскалирует</div>
             <ul class="auth-items">
-              <li><span>→</span><span>Нет консенсуса между направлениями по спорному вопросу</span></li>
-              <li><span>→</span><span>Изменение затрагивает несколько направлений одновременно</span></li>
-              <li><span>→</span><span>Решение выходит за рамки полномочий направления</span></li>
+              <li><span>→</span><span>Нет консенсуса между субдоменами по спорному вопросу</span></li>
+              <li><span>→</span><span>Изменение затрагивает несколько субдоменов одновременно</span></li>
+              <li><span>→</span><span>Решение выходит за рамки полномочий субдомена</span></li>
             </ul>
           </div>
         </div>
@@ -561,8 +565,9 @@
         <span class="process-icon">📋</span>
         <div class="process-title">Планирование</div>
         <ul class="process-items">
-          <li><span>→</span><span>Итерационное планирование с явными целями — формат определяется внутри направления</span></li>
+          <li><span>→</span><span>Итерационное планирование с явными целями - формат определяется внутри субдомена</span></li>
           <li><span>→</span><span>Бэклог задач и гипотез</span></li>
+          <li><span>→</span><span>Инструмент для планирования технических задач наравне с бизнесовыми</span></li>
         </ul>
       </div>
       <div class="process-card">
@@ -572,16 +577,17 @@
           <li><span>→</span><span>Дейли внутри команды</span></li>
           <li><span>→</span><span>Регулярный синк по прогрессу с After Sync резюме</span></li>
           <li><span>→</span><span>Ретро по итогам итерации</span></li>
-          <li><span>→</span><span>Обмен опытом от тех лидов к команде — регулярно</span></li>
+          <li><span>→</span><span>Обмен опытом от тех лидов к команде - регулярно</span></li>
+          <li><span>→</span><span>Инструмент для планирования технических задач наравне с бизнесовыми</span></li>
         </ul>
       </div>
       <div class="process-card">
         <span class="process-icon">🚨</span>
         <div class="process-title">Дежурство и инциденты</div>
         <ul class="process-items">
-          <li><span>→</span><span>При запросе подключается на помощь дежурной команде по своей кодовой базе и сервисам</span></li>
+          <li><span>→</span><span>Дежурство по своей кодовой базе и сервисам - внутри субдомена</span></li>
           <li><span>→</span><span>Разбор проблем на тестовых и боевых окружениях</span></li>
-          <li><span>→</span><span>Кодовая база закреплена — ответственность за стабильность тоже</span></li>
+          <li><span>→</span><span>Кодовая база закреплена - ответственность за стабильность тоже</span></li>
         </ul>
       </div>
     </div>
@@ -593,7 +599,7 @@
   <div class="section">
     <div class="section-header">
       <div class="section-number n5">5</div>
-      <div class="section-title">Как бизнесовая задача разбивается по направлениям</div>
+      <div class="section-title">Как бизнесовая задача разбивается по субдоменам</div>
     </div>
     <div class="card">
 
@@ -608,21 +614,21 @@
           <div style="padding-bottom:22px;flex:1;padding-top:6px;">
             <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#a78bfa;margin-bottom:6px;">Шаг 1</div>
             <div style="font-size:15px;font-weight:700;margin-bottom:6px;">Общий пул задач</div>
-            <div style="font-size:14px;color:var(--muted);line-height:1.5;margin-bottom:10px;">Бизнесовая задача поступает в общий пул. Определяется наиболее подходящий направление — по степени изменений и бизнесовой составляющей.</div>
+            <div style="font-size:14px;color:var(--muted);line-height:1.5;margin-bottom:10px;">Бизнесовая задача поступает в общий пул. Определяется наиболее подходящий субдомен - по степени изменений и бизнесовой составляющей.</div>
             <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;">
-              <div style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">На предварительной оценке должны быть представители каждого направления (dev + qa). Кто определяет направление — варианты:</div>
+              <div style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">На предварительной оценке должны быть представители каждого субдомена (dev + qa). Кто определяет субдомен - варианты:</div>
               <div style="display:flex;flex-direction:column;gap:8px;">
-                <div style="display:flex;gap:10px;font-size:13px;color:var(--muted);line-height:1.4;">
-                  <span style="color:#a78bfa;font-weight:700;flex-shrink:0;">A</span>
-                  <span><strong style="color:var(--text);">Лидеры направлений совместно</strong> — на межнаправлениеном синке договариваются кому идёт задача</span>
+                <div style="display:flex;gap:10px;font-size:13px;color:var(--muted);line-height:1.4;background:#43e97b0d;border:1px solid #43e97b33;border-radius:8px;padding:10px 12px;">
+                  <span style="color:#43e97b;font-weight:700;flex-shrink:0;">A ★</span>
+                  <span><strong style="color:var(--text);">На предварительной оценке</strong> - представители субдоменов сами определяют кому принадлежит задача прямо в процессе оценки. Наиболее желаемый вариант.</span>
                 </div>
                 <div style="display:flex;gap:10px;font-size:13px;color:var(--muted);line-height:1.4;">
-                  <span style="color:#43e97b;font-weight:700;flex-shrink:0;">B</span>
-                  <span><strong style="color:var(--text);">Сверху вниз</strong> — product owner или руководитель назначает направление</span>
+                  <span style="color:#a78bfa;font-weight:700;flex-shrink:0;">B</span>
+                  <span><strong style="color:var(--text);">Руководители субдоменов совместно</strong> - на межсубдоменном синке договариваются кому идёт задача</span>
                 </div>
                 <div style="display:flex;gap:10px;font-size:13px;color:var(--muted);line-height:1.4;">
                   <span style="color:#f7971e;font-weight:700;flex-shrink:0;">C</span>
-                  <span><strong style="color:var(--text);">Бизнес предлагает</strong> — направления соглашаются или корректируют назначение</span>
+                  <span><strong style="color:var(--text);">Бизнес предлагает</strong> - субдомены соглашаются или корректируют назначение</span>
                 </div>
                 <div style="margin-top:4px;font-size:12px;color:#f7971e;font-style:italic;">⚡ Конкретный вариант уточняется в процессе работы</div>
               </div>
@@ -637,8 +643,8 @@
           </div>
           <div style="padding-bottom:22px;flex:1;padding-top:6px;">
             <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#43e97b;margin-bottom:6px;">Шаг 2</div>
-            <div style="font-size:15px;font-weight:700;margin-bottom:6px;">Декомпозиция внутри направления</div>
-            <div style="font-size:14px;color:var(--muted);line-height:1.5;">Определяется ключевая команда которая ведёт задачу. Выявляются части затрагивающие другие направления.</div>
+            <div style="font-size:15px;font-weight:700;margin-bottom:6px;">Декомпозиция внутри субдомена</div>
+            <div style="font-size:14px;color:var(--muted);line-height:1.5;">Ответственный субдомен декомпозирует задачу. Определяется ключевая команда которая ведёт задачу. Выявляются части затрагивающие другие субдомены.</div>
           </div>
         </div>
 
@@ -650,7 +656,7 @@
           <div style="padding-bottom:22px;flex:1;padding-top:6px;">
             <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#f7971e;margin-bottom:6px;">Шаг 3</div>
             <div style="font-size:15px;font-weight:700;margin-bottom:6px;">Распределение декомпозитов</div>
-            <div style="font-size:14px;color:var(--muted);line-height:1.5;">Части задачи раскидываются в пулы соответствующих направлений. На текущий момент — в общий пул департамента пока остальные направления не сформированы.</div>
+            <div style="font-size:14px;color:var(--muted);line-height:1.5;">Части задачи раскидываются в пулы соответствующих субдоменов. На текущий момент - в общий пул департамента пока остальные субдомена не сформированы.</div>
           </div>
         </div>
 
@@ -661,7 +667,7 @@
           <div style="padding-bottom:0;flex:1;padding-top:6px;">
             <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#f64f59;margin-bottom:6px;">Шаг 4</div>
             <div style="font-size:15px;font-weight:700;margin-bottom:6px;">Выполнение и координация</div>
-            <div style="font-size:14px;color:var(--muted);line-height:1.5;">Каждое направление берёт свою часть в бэклог и планирует работу в рамках своего рабочего цикла. Ключевая команда следит за общим прогрессом и координирует зависимости между направлениями.</div>
+            <div style="font-size:14px;color:var(--muted);line-height:1.5;">Каждый субдомен берёт свою часть в бэклог и планирует работу в рамках своего рабочего цикла. Ключевая команда следит за общим прогрессом и координирует зависимости между субдоменами.</div>
           </div>
         </div>
 
@@ -675,29 +681,29 @@
   <div class="section">
     <div class="section-header">
       <div class="section-number n6">6</div>
-      <div class="section-title">Взаимодействие между направлениями</div>
+      <div class="section-title">Взаимодействие между субдоменами</div>
     </div>
     <div class="card">
       <div class="inter-list">
         <div class="inter-item">
           <div class="inter-icon">🔁</div>
           <div>
-            <div class="inter-title">Синк между направлениями</div>
-            <div class="inter-desc">Регулярная синхронизация лидеров и тех лидов всех направлений. Единое место где сверяются общие процессы, решаются пересечения и выравниваются стандарты. То что должно работать одинаково во всех направлениях — принимается здесь.</div>
+            <div class="inter-title">Синк между субдоменами</div>
+            <div class="inter-desc">Регулярная синхронизация руководителей и тех лидов всех субдоменов. Единое место где сверяются общие процессы, решаются пересечения и выравниваются стандарты. То что должно работать одинаково во всех субдоменах - принимается здесь.</div>
           </div>
         </div>
         <div class="inter-item">
           <div class="inter-icon">🚪</div>
           <div>
             <div class="inter-title">Точки входа</div>
-            <div class="inter-desc">Любое взаимодействие между направлениями идёт через лидера или тех лида — не напрямую между участниками команд. Это сохраняет прозрачность и предотвращает неявные зависимости. В направлении может быть несколько тех лидов — в этом случае они совместно несут ответственность за техническую зону.</div>
+            <div class="inter-desc">Любое взаимодействие между субдоменами идёт через руководителя или тех лида - не напрямую между участниками команд. Это сохраняет прозрачность и предотвращает неявные зависимости. В субдомене может быть несколько тех лидов - в этом случае они совместно несут ответственность за техническую зону.</div>
           </div>
         </div>
         <div class="inter-item">
           <div class="inter-icon">📐</div>
           <div>
             <div class="inter-title">Общие стандарты</div>
-            <div class="inter-desc">Процессы и стандарты обязательные для всех направлений фиксируются явно и принимаются совместно на синке между направлениями. Каждое направление адаптирует их внутри, но не отменяет.</div>
+            <div class="inter-desc">Процессы и стандарты обязательные для всех субдоменов фиксируются явно и принимаются совместно на межсубдоменном синке. Каждый субдомен адаптирует их внутри, но не отменяет.</div>
           </div>
         </div>
       </div>
@@ -713,7 +719,7 @@
   <div class="section">
     <div class="section-header">
       <div class="section-number n2">7</div>
-      <div class="section-title">Роль лидера направления</div>
+      <div class="section-title">Роль руководителя субдомена</div>
     </div>
     <div class="card">
       <div class="inter-list">
@@ -721,28 +727,28 @@
           <div class="inter-icon">🎯</div>
           <div>
             <div class="inter-title">Владелец результата</div>
-            <div class="inter-desc">Отвечает за реализацию бизнес-ценности своей зоны — не только за процесс. Метрики направления находятся в его ответственности, он следит за их состоянием и динамикой.</div>
+            <div class="inter-desc">Отвечает за реализацию бизнес-ценности своей зоны - не только за процесс. Метрики субдомена находятся в его ответственности, он следит за их состоянием и динамикой.</div>
           </div>
         </div>
         <div class="inter-item">
           <div class="inter-icon">🚪</div>
           <div>
             <div class="inter-title">Точка входа</div>
-            <div class="inter-desc">Все бизнесовые запросы к направлению, не касающиеся технической части, идут через него. Представляет направление на синках, доносит контекст наружу и приносит контекст внутрь.</div>
+            <div class="inter-desc">Все бизнесовые запросы к субдомену, не касающиеся технической части, идут через него. Представляет субдомен на синках, доносит контекст наружу и приносит контекст внутрь.</div>
           </div>
         </div>
         <div class="inter-item">
           <div class="inter-icon">🛡️</div>
           <div>
             <div class="inter-title">Защитник границ</div>
-            <div class="inter-desc">Следит за тем чтобы зона ответственности не размывалась не уходила в сторону. Координирует зависимости — совместно с тех лидами видит где направление пересекается с соседями и управляет этим.</div>
+            <div class="inter-desc">Следит за тем чтобы зона ответственности не размывалась и ownership не уходил в сторону. Координирует зависимости - совместно с тех лидами видит где субдомен пересекается с соседями и управляет этим.</div>
           </div>
         </div>
         <div class="inter-item">
           <div class="inter-icon">🤝</div>
           <div>
             <div class="inter-title">Связка с тим лидами</div>
-            <div class="inter-desc">Активно взаимодействует с тим лидами направления. Совместно с ними отвечает за развитие и рост участников команд, принимает решения влияющие на людей и результат.</div>
+            <div class="inter-desc">Активно взаимодействует с тим лидами субдомена. Совместно с ними отвечает за развитие и рост участников команд, принимает решения влияющие на людей и результат.</div>
           </div>
         </div>
       </div>
@@ -755,7 +761,7 @@
   <div class="section">
     <div class="section-header">
       <div class="section-number n3">8</div>
-      <div class="section-title">Роль тех лида направления (один или несколько)</div>
+      <div class="section-title">Роль тех лида субдомена (один или несколько)</div>
     </div>
     <div class="card">
       <div class="inter-list">
@@ -763,35 +769,35 @@
           <div class="inter-icon">🏗️</div>
           <div>
             <div class="inter-title">Технический ownership</div>
-            <div class="inter-desc">Отвечает за техническую целостность зоны: архитектура сервисов, контракты, границы на уровне кода. Следит за тем чтобы технические решения внутри направления были последовательными и обоснованными.</div>
+            <div class="inter-desc">Отвечает за техническую целостность зоны: архитектура сервисов, контракты, границы на уровне кода. Следит за тем чтобы технические решения внутри субдомена были последовательными и обоснованными.</div>
           </div>
         </div>
         <div class="inter-item">
           <div class="inter-icon">⚖️</div>
           <div>
             <div class="inter-title">Решение спорных вопросов</div>
-            <div class="inter-desc">Все разногласия по технической реализации внутри направления — решаются тех лидом и главным экспертом совместно.</div>
+            <div class="inter-desc">При разногласиях по технической реализации внутри субдомена - решающее слово за тех лидом (или тех лидами совместно, если их несколько).</div>
           </div>
         </div>
         <div class="inter-item">
           <div class="inter-icon">🔍</div>
           <div>
             <div class="inter-title">Code review</div>
-            <div class="inter-desc">Все разногласия в code review внутри направления — решаются тех лидом и главным экспертом совместно.</div>
+            <div class="inter-desc">При разногласиях в code review внутри субдомена - решающее слово за тех лидом. Отвечает за качество кодовой базы в своей зоне.</div>
           </div>
         </div>
         <div class="inter-item">
           <div class="inter-icon">🔗</div>
           <div>
             <div class="inter-title">Техническая точка входа</div>
-            <div class="inter-desc">Все технические вопросы от соседних направлений идут через тех лида. Если тех лидов несколько — между ними распределяются зоны ответственности и один из них представляет направление на технических синках.</div>
+            <div class="inter-desc">Все технические вопросы от соседних субдоменов идут через тех лида. Если тех лидов несколько - между ними распределяются зоны ответственности и один из них представляет субдомен на технических синках.</div>
           </div>
         </div>
         <div class="inter-item">
           <div class="inter-icon">🤝</div>
           <div>
-            <div class="inter-title">Связка с лидером направления</div>
-            <div class="inter-desc">Работает в паре с лидером направления: тех лид (или тех лиды) закрывает техническую часть, лидер — бизнесовую. Совместно участвуют в приоритизации, развитии людей и принятии решений влияющих на результат.</div>
+            <div class="inter-title">Связка с руководителем субдомена</div>
+            <div class="inter-desc">Работает в паре с руководителем субдомена: тех лид (или тех лиды) закрывает техническую часть, руководитель - бизнесовую. Совместно участвуют в приоритизации, развитии людей и принятии решений влияющих на результат.</div>
           </div>
         </div>
       </div>
@@ -802,8 +808,8 @@
 
   <div class="principle-card">
     <div class="principle-quote">
-      Направление — это <em>команда с границами</em>.<br>
-      Чёткая зона, понятные полномочия, один лидер —<br>
+      Субдомен - это <em>команда с границами</em>.<br>
+      Чёткая зона, понятные полномочия, один руководитель —<br>
       всё остальное решается внутри.
     </div>
   </div>

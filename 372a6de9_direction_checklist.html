@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Чеклист направления</title>
+  <title>Чеклист субдомена</title>
   <style>
     :root {
       --bg: #0f1117;
@@ -191,12 +191,12 @@
   <!-- ПРОГРЕСС -->
   <div class="progress-bar-wrap">
     <div class="progress-block">
-      <div class="progress-label launch">Направление запущено</div>
+      <div class="progress-label launch">Субдомен запущен</div>
       <div class="bar-bg"><div class="bar-fill launch" id="bar-launch" style="width:0%"></div></div>
       <div class="bar-count" id="count-launch">0 / 0</div>
     </div>
     <div class="progress-block">
-      <div class="progress-label running">Направление работает</div>
+      <div class="progress-label running">Субдомен работает</div>
       <div class="bar-bg"><div class="bar-fill running" id="bar-running" style="width:0%"></div></div>
       <div class="bar-count" id="count-running">0 / 0</div>
     </div>
@@ -205,32 +205,32 @@
   <!-- БЛОК 1: ЗАПУЩЕНО -->
   <div class="section-block">
     <div class="section-label">
-      <span class="section-badge badge-launch">🚀 Направление запущено</span>
-      <span class="section-desc">Минимум чтобы направление существовало</span>
+      <span class="section-badge badge-launch">🚀 Субдомен запущен</span>
+      <span class="section-desc">Минимум чтобы субдомен существовал</span>
     </div>
     <div class="checklist" data-group="launch">
 
       <div class="check-item" onclick="toggle(this)">
         <div class="check-box"></div>
         <div>
-          <div class="check-text">Определён лидер направления</div>
-          <div class="check-sub">Назначен человек — единственная точка входа для бизнесовых запросов</div>
+          <div class="check-text">Определён руководитель субдомена</div>
+          <div class="check-sub">Назначен человек - единственная точка входа для бизнесовых запросов</div>
         </div>
       </div>
 
       <div class="check-item" onclick="toggle(this)">
         <div class="check-box"></div>
         <div>
-          <div class="check-text">Определён тех лид направления (один или несколько)</div>
-          <div class="check-sub">Назначен один или несколько тех лидов — техническая точка входа, решающее слово по коду внутри зоны</div>
+          <div class="check-text">Определён тех лид субдомена (один или несколько)</div>
+          <div class="check-sub">Назначен один или несколько тех лидов - техническая точка входа, решающее слово по коду внутри зоны</div>
         </div>
       </div>
 
       <div class="check-item" onclick="toggle(this)">
         <div class="check-box"></div>
         <div>
-          <div class="check-text">Определён набор команд направления</div>
-          <div class="check-sub">Зафиксированы команды закреплённые за направлением</div>
+          <div class="check-text">Определён набор команд субдомена</div>
+          <div class="check-sub">Зафиксированы команды закреплённые за субдоменом</div>
         </div>
       </div>
 
@@ -238,7 +238,7 @@
         <div class="check-box"></div>
         <div>
           <div class="check-text">Определена зона ответственности</div>
-          <div class="check-sub">Зафиксированы границы по кодовой базе и сервисам (явный список) и по бизнес-домену (какие процессы и данные принадлежат направлению)</div>
+          <div class="check-sub">Зафиксированы границы по кодовой базе и сервисам (явный список) и по бизнес-домену (какие процессы и данные принадлежат субдомену)</div>
         </div>
       </div>
 
@@ -246,7 +246,7 @@
         <div class="check-box"></div>
         <div>
           <div class="check-text">Проведена вводная встреча для всех причастных</div>
-          <div class="check-sub">Лидер, тех лид(ы) и команды введены в контекст: границы направления, роли, полномочия и ожидания</div>
+          <div class="check-sub">Руководитель, тех лид(ы) и команды введены в контекст: границы субдомена, роли, полномочия и ожидания</div>
         </div>
       </div>
 
@@ -261,8 +261,8 @@
       <div class="check-item" onclick="toggle(this)">
         <div class="check-box"></div>
         <div>
-          <div class="check-text">Направление может видеть свой технический бэклог</div>
-          <div class="check-sub">Есть срез задач технического долга относящихся к зоне направления</div>
+          <div class="check-text">Субдомен может видеть свой технический бэклог</div>
+          <div class="check-sub">Есть срез задач технического долга относящихся к зоне субдомена</div>
         </div>
       </div>
 
@@ -274,7 +274,7 @@
   <!-- БЛОК 2: РАБОТАЕТ -->
   <div class="section-block">
     <div class="section-label">
-      <span class="section-badge badge-running">✅ Направление работает</span>
+      <span class="section-badge badge-running">✅ Субдомен работает</span>
       <span class="section-desc">Процессы запущены и работают регулярно</span>
     </div>
     <div class="checklist" data-group="running">
@@ -283,55 +283,55 @@
         <div class="check-box"></div>
         <div>
           <div class="check-text">Работает внутреннее планирование</div>
-          <div class="check-sub">Команды проводят планирование внутри направления, задачи декомпозируются на своём уровне</div>
+          <div class="check-sub">Команды проводят планирование внутри субдомена, задачи декомпозируются на своём уровне</div>
         </div>
       </div>
 
       <div class="check-item" onclick="toggle(this)">
         <div class="check-box"></div>
         <div>
-          <div class="check-text">Работает внутренний синк направления</div>
-          <div class="check-sub">Регулярная синхронизация внутри направления между командами</div>
+          <div class="check-text">Работает внутренний синк субдомена</div>
+          <div class="check-sub">Регулярная синхронизация внутри субдомена между командами</div>
         </div>
       </div>
 
       <div class="check-item" onclick="toggle(this)">
         <div class="check-box"></div>
         <div>
-          <div class="check-text">Участвует в синке между направлениями</div>
-          <div class="check-sub">Лидер и/или тех лид ходят на регулярный межнаправленческий синк (на период пока департамент не разделён полностью на направления — синк происходит по существующим регламентам)</div>
+          <div class="check-text">Участвует в синке между субдоменами</div>
+          <div class="check-sub">Руководитель и/или тех лид ходят на регулярный межсубдоменный синк (на период пока департамент не разделён полностью на субдомены - синк происходит по существующим регламентам)</div>
         </div>
       </div>
 
       <div class="check-item" onclick="toggle(this)">
         <div class="check-box"></div>
         <div>
-          <div class="check-text">Code review ведётся внутри направления</div>
-          <div class="check-sub">Ревью по кодовой базе направления проходит внутри, тех лид(ы) — совместно с главным экспертом по сервису - принимает решающее слово при спорах</div>
+          <div class="check-text">Code review ведётся внутри субдомена</div>
+          <div class="check-sub">Ревью по кодовой базе субдомена проходит внутри, тех лид(ы) - решающее слово при спорах</div>
         </div>
       </div>
 
       <div class="check-item" onclick="toggle(this)">
         <div class="check-box"></div>
         <div>
-          <div class="check-text">Регистратура: команды знают что могут обратиться к тех лиду направления</div>
-          <div class="check-sub">Процесс регистратуры не изменился, но доступна консультация тех лида(ов) направления</div>
+          <div class="check-text">Регистратура: команды знают что могут обратиться к тех лиду субдомена</div>
+          <div class="check-sub">Процесс регистратуры не изменился, но доступна консультация тех лида(ов) субдомена</div>
         </div>
       </div>
 
       <div class="check-item" onclick="toggle(this)">
         <div class="check-box"></div>
         <div>
-          <div class="check-text">Направление отстаивает свой технический долг</div>
-          <div class="check-sub">Тех лид и лидер совместно защищают технический бэклог направления перед бизнесом</div>
+          <div class="check-text">Субдомен отстаивает свой технический долг</div>
+          <div class="check-sub">Тех лид и руководитель совместно защищают технический бэклог субдомена перед бизнесом</div>
         </div>
       </div>
 
       <div class="check-item" onclick="toggle(this)">
         <div class="check-box"></div>
         <div>
-          <div class="check-text">Метрики направления определены и отслеживаются</div>
-          <div class="check-sub">Лидер — владелец метрик, динамика видна и разбирается регулярно</div>
+          <div class="check-text">Метрики субдомена определены и отслеживаются</div>
+          <div class="check-sub">Руководитель - владелец метрик, динамика видна и разбирается регулярно</div>
         </div>
       </div>
 

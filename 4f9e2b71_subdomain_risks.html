@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Управление рисками субдоменов</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface2: #21263a;
+      --border: #2e3350;
+      --text: #e8eaf6;
+      --muted: #8b92b8;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 40px 20px 80px;
+    }
+
+    .container { max-width: 900px; margin: 0 auto; }
+
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 0 0 36px;
+    }
+
+    .section { margin-bottom: 36px; }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .section-number {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+
+    .n1 { background: #f64f5922; color: #f64f59; border: 1px solid #f64f5944; }
+    .n2 { background: #f7971e22; color: #f7971e; border: 1px solid #f7971e44; }
+
+    .section-title {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .section-sub {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+    }
+
+    .risk-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #f64f5914;
+      border: 1px solid #f64f5933;
+      color: #f64f59;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-bottom: 20px;
+    }
+
+    .measure-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .measure-item {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px 20px;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+    }
+
+    .measure-item.highlight {
+      background: #43e97b0a;
+      border-color: #43e97b33;
+    }
+
+    .measure-icon {
+      font-size: 20px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .measure-title {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .measure-desc {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .measure-note {
+      display: inline-block;
+      margin-top: 8px;
+      font-size: 12px;
+      color: #43e97b;
+      background: #43e97b12;
+      border: 1px solid #43e97b33;
+      border-radius: 6px;
+      padding: 3px 10px;
+    }
+
+    .sub-list {
+      margin-top: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .sub-list li {
+      list-style: none;
+      font-size: 13px;
+      color: var(--muted);
+      display: flex;
+      gap: 8px;
+      line-height: 1.4;
+    }
+
+    .sub-list li span:first-child { color: #a78bfa; flex-shrink: 0; }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- БЛОК 1 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number n1">1</div>
+      <div>
+        <div class="section-title">Неравномерное распределение бэклога</div>
+        <div class="section-sub">Ситуация когда бизнесовые задачи концентрируются в одном субдомене при простое других</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="risk-label">⚠ Риск</div>
+      <div class="measure-list">
+
+        <div class="measure-item highlight">
+          <div class="measure-icon">🗂️</div>
+          <div>
+            <div class="measure-title">Разделение кодовой базы на core и non-core</div>
+            <div class="measure-desc">На этапе запуска субдомена - превентивно разделить кодовую базу на ядро (core) и периферию (non-core). При перегрузе внешним командам по возможности отдаются только non-core задачи.</div>
+            <ul class="sub-list">
+              <li><span>→</span><span>Core - ключевая логика, критические сервисы, высокая цена ошибки</span></li>
+              <li><span>→</span><span>Non-core - изолированные модули, утилиты, задачи с явными границами. При перегрузе - передаются командам извне субдомена</span></li>
+              <li><span>→</span><span>Деление пересматривается по мере роста субдомена</span></li>
+            </ul>
+            <span class="measure-note">★ Делать превентивно, до первого перегруза</span>
+          </div>
+        </div>
+
+        <div class="measure-item">
+          <div class="measure-icon">🔍</div>
+          <div>
+            <div class="measure-title">Усиленный refinement при перегрузе</div>
+            <div class="measure-desc">При высокой нагрузке тех лиды усиливают своё присутствие на refinement - совместно с внутренними и внешними командами. Цель: итерация пусть и тяжёлая, но не разъедется по контексту между участниками.</div>
+            <ul class="sub-list">
+              <li><span>→</span><span>В штатной ситуации - тех лид(ы) могут делегировать разбор задач своим командам или проводить его верхнеуровнево без деталей</span></li>
+              <li><span>→</span><span>При перегрузе - тех лид(ы) ответственно участвуют в refinement с обеими сторонами</span></li>
+              <li><span>→</span><span>Особенно критично если в итерации участвуют внешние команды</span></li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- БЛОК 2 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-number n2">2</div>
+      <div>
+        <div class="section-title">Другой департамент берёт задачи из нашего бэклога</div>
+        
+      </div>
+    </div>
+    <div class="card">
+      <div class="risk-label">⚠ Риск</div>
+      <div class="measure-list">
+
+        <div class="measure-item highlight">
+          <div class="measure-icon">📊</div>
+          <div>
+            <div class="measure-title">Собрать статистику и оформить как субдомен</div>
+            <div class="measure-desc">Пока запускается первый субдомен - собрать статистику за год: сколько команд и участников из другого департамента брали задачи из нашей зоны. На основе данных - прикинуть человеко-ресурсы и рассмотреть запуск для них отдельного субдомена.</div>
+            <ul class="sub-list">
+              <li><span>→</span><span>Устойчивый поток задач = фактически уже сложившийся ownership, который стоит легализовать</span></li>
+            </ul>
+            <span class="measure-note">★ Делать параллельно с запуском первого субдомена</span>
+          </div>
+        </div>
+
+        <div class="measure-item">
+          <div class="measure-icon">📋</div>
+          <div>
+            <div class="measure-title">ADR как обязательное условие</div>
+            <div class="measure-desc">Задача не считается завершённой без ADR если в процессе было принято архитектурное решение. Страховка на случай когда команда ушла, а вопросы остались.</div>
+            <ul class="sub-list">
+              <li><span>→</span><span>ADR фиксирует не только решение но и контекст почему именно так</span></li>
+              <li><span>→</span><span>Шаблон ADR предоставляет субдомен - чтобы формат был единым</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="measure-item">
+          <div class="measure-icon">🎬</div>
+          <div>
+            <div class="measure-title">Периодические демо</div>
+            <div class="measure-desc">Регулярные демо для тех лидов субдомена - не для галочки, а как точка явного контроля. Момент когда видно что сделано и как, пока отклонения ещё не зарылись глубоко в кодовую базу.</div>
+            <ul class="sub-list">
+              <li><span>→</span><span>Демо - обязательное условие, не опциональное</span></li>
+              <li><span>→</span><span>По результатам тех лид субдомена может вернуть задачу на доработку</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="measure-item">
+          <div class="measure-icon">🔁</div>
+          <div>
+            <div class="measure-title">Явный онбординг и офбординг</div>
+            <div class="measure-desc">Каждая ротация внешней команды проходит по явному протоколу. Без него каждый приход - потеря контекста, каждый уход - потеря знания.</div>
+            <ul class="sub-list">
+              <li><span>→</span><span>Онбординг - сессия с тех лидом субдомена: контекст зоны, стандарты, что нельзя трогать</span></li>
+              <li><span>→</span><span>Офбординг - явная передача: что сделано, что осталось, где документация</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="measure-item">
+          <div class="measure-icon">🔍</div>
+          <div>
+            <div class="measure-title">Обязательное ревью тех лидом субдомена</div>
+            <div class="measure-desc">Финальную приёмку кода проводит тех лид(ы) субдомена - не опционально. Задача закрывается только после явного approve. Это не замедляет процесс, это исключает накопление скрытого долга.</div>
+            <ul class="sub-list">
+              <li><span>→</span><span>Ревью - условие закрытия задачи, фиксируется в definition of done</span></li>
+              <li><span>→</span><span>При разногласиях - решающее слово за тех лидом субдомена</span></li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
