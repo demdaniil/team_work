@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RASI матрица субдомена</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface2: #21263a;
+      --border: #2e3350;
+      --text: #e8eaf6;
+      --muted: #8b92b8;
+      --radius: 14px;
+      --c-r: #6c63ff;
+      --c-a: #f64f59;
+      --c-s: #43e97b;
+      --c-i: #8b92b8;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 40px 20px 80px;
+    }
+
+    .container { max-width: 1100px; margin: 0 auto; }
+
+    .legend {
+      display: flex;
+      gap: 24px;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .legend-badge {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+
+    .badge-r { background: #6c63ff22; border: 1px solid #6c63ff55; color: var(--c-r); }
+    .badge-a { background: #f64f5922; border: 1px solid #f64f5955; color: var(--c-a); }
+    .badge-s { background: #43e97b22; border: 1px solid #43e97b55; color: var(--c-s); }
+    .badge-i { background: #8b92b822; border: 1px solid #8b92b855; color: var(--c-i); }
+
+    .table-wrap {
+      overflow-x: auto;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 800px;
+    }
+
+    thead th {
+      background: var(--surface2);
+      padding: 14px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: var(--muted);
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    thead th.col-process {
+      text-align: left;
+      padding-left: 20px;
+      min-width: 200px;
+      color: var(--text);
+    }
+
+    .group-header td {
+      background: #12151e;
+      padding: 8px 20px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+    }
+
+    tbody tr:not(.group-header) {
+      border-bottom: 1px solid var(--border);
+    }
+
+    tbody tr:not(.group-header):hover {
+      background: #1e2233;
+    }
+
+    .process-cell {
+      padding: 14px 20px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      white-space: nowrap;
+    }
+
+    .process-icon {
+      margin-right: 8px;
+    }
+
+    .process-cell {
+      position: relative;
+    }
+
+    .tip-wrap {
+      position: relative;
+      display: inline-block;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+
+    .tip-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 10px;
+      font-style: normal;
+      cursor: default;
+      font-weight: 700;
+    }
+
+    .tip-box {
+      display: none;
+      position: absolute;
+      left: 50%;
+      top: calc(100% + 8px);
+      transform: translateX(-50%);
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+      z-index: 100;
+      min-width: 160px;
+      line-height: 1.6;
+      box-shadow: 0 8px 24px #00000055;
+    }
+
+    .tip-box a {
+      color: #6c63ff;
+      text-decoration: none;
+    }
+
+    .tip-box a:hover {
+      text-decoration: underline;
+    }
+
+    .tip-wrap:hover .tip-box {
+      display: block;
+    }
+
+    .rasi-cell {
+      text-align: center;
+      padding: 8px 6px;
+      user-select: none;
+      border-left: 1px solid var(--border);
+    }
+
+    thead th:not(.col-process) {
+      border-left: 1px solid var(--border);
+    }
+
+    .rasi-toggles {
+      display: flex;
+      gap: 4px;
+      justify-content: center;
+      flex-wrap: nowrap;
+    }
+
+    .rasi-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 7px;
+      font-size: 11px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 0.1s, opacity 0.15s;
+      border: 1px solid transparent;
+      opacity: 0.22;
+    }
+
+    .rasi-btn:active { transform: scale(0.88); }
+
+    .rasi-btn.on { opacity: 1; }
+
+    .rasi-btn.r { background: #6c63ff22; border-color: #6c63ff55; color: var(--c-r); }
+    .rasi-btn.r.on { background: #6c63ff33; border-color: #6c63ffaa; }
+    .rasi-btn.a { background: #f64f5922; border-color: #f64f5955; color: var(--c-a); }
+    .rasi-btn.a.on { background: #f64f5933; border-color: #f64f59aa; }
+    .rasi-btn.s { background: #43e97b22; border-color: #43e97b55; color: var(--c-s); }
+    .rasi-btn.s.on { background: #43e97b33; border-color: #43e97baa; }
+    .rasi-btn.i { background: #8b92b822; border-color: #8b92b855; color: var(--c-i); }
+    .rasi-btn.i.on { background: #8b92b833; border-color: #8b92b8aa; }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <div class="legend">
+    <div class="legend-item">
+      <div class="legend-badge badge-r">R</div>
+      <div><strong style="color:var(--text)">Responsible</strong> — исполнитель, кто делает</div>
+    </div>
+    <div class="legend-item">
+      <div class="legend-badge badge-a">A</div>
+      <div><strong style="color:var(--text)">Accountable</strong> — кто несёт ответственность за результат</div>
+    </div>
+    <div class="legend-item">
+      <div class="legend-badge badge-s">S</div>
+      <div><strong style="color:var(--text)">Supportive</strong> — кто помогает / ассистирует</div>
+    </div>
+    <div class="legend-item">
+      <div class="legend-badge badge-i">I</div>
+      <div><strong style="color:var(--text)">Informed</strong> — кого информируют о результате</div>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th class="col-process">Процесс</th>
+          <th>Разработчик</th>
+          <th>Тестировщик</th>
+          <th>Аналитик</th>
+          <th>Тим лид</th>
+          <th>Тех лид</th>
+          <th>Доменный архитектор</th>
+          <th>Руководитель</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <tr class="group-header"><td colspan="8">Процессы субдомена</td></tr>
+
+        <tr>
+          <td class="process-cell"><span class="process-icon">🔢</span>Предварительная оценка<span class="tip-wrap"><i class="tip-icon">i</i><div class="tip-box">Ссылка на регламент</div></span></td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn r on" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn r on" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn r on" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn s on" onclick="tog(this)">S</div>
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn a on" onclick="tog(this)">A</div>
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn i on" onclick="tog(this)">I</div>
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+          </div>
+        </td>
+        </tr>
+
+        <tr>
+          <td class="process-cell"><span class="process-icon">📋</span>Планирование задач<span class="tip-wrap"><i class="tip-icon">i</i><div class="tip-box">Ссылка на регламент</div></span></td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn i on" onclick="tog(this)">I</div>
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn i on" onclick="tog(this)">I</div>
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn s on" onclick="tog(this)">S</div>
+            <div class="rasi-btn i on" onclick="tog(this)">I</div>
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn r on" onclick="tog(this)">R</div>
+            <div class="rasi-btn a on" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn s on" onclick="tog(this)">S</div>
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn r on" onclick="tog(this)">R</div>
+            <div class="rasi-btn a on" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+        </tr>
+
+        <tr>
+          <td class="process-cell"><span class="process-icon">📥</span>Регистратура<span class="tip-wrap"><i class="tip-icon">i</i><div class="tip-box">Ссылка на регламент</div></span></td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn r on" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn r on" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn r on" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn a on" onclick="tog(this)">A</div>
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn s on" onclick="tog(this)">S</div>
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+        </tr>
+
+        <tr>
+          <td class="process-cell"><span class="process-icon">🏗️</span>Архитектурное согласование в домене<span class="tip-wrap"><i class="tip-icon">i</i><div class="tip-box">Ссылка на регламент</div></span></td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn r on" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn r on" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn s on" onclick="tog(this)">S</div>
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn s on" onclick="tog(this)">S</div>
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn s on" onclick="tog(this)">S</div>
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn a on" onclick="tog(this)">A</div>
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+        </tr>
+
+        <tr>
+          <td class="process-cell"><span class="process-icon">🏗️</span>Архитектурное согласование в субдомене<span class="tip-wrap"><i class="tip-icon">i</i><div class="tip-box">Ссылка на регламент</div></span></td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn r on" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn r on" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn s on" onclick="tog(this)">S</div>
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn a on" onclick="tog(this)">A</div>
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn a on" onclick="tog(this)">A</div>
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+        </tr>
+
+        <tr>
+          <td class="process-cell"><span class="process-icon">👁️</span>Код ревью<span class="tip-wrap"><i class="tip-icon">i</i><div class="tip-box">Ссылка на регламент</div></span></td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn r on" onclick="tog(this)">R</div>
+            <div class="rasi-btn a on" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn r on" onclick="tog(this)">R</div>
+            <div class="rasi-btn a on" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn a on" onclick="tog(this)">A</div>
+            <div class="rasi-btn s on" onclick="tog(this)">S</div>
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+        </tr>
+
+        <tr>
+          <td class="process-cell"><span class="process-icon">🔗</span>Интеграционное тестирование<span class="tip-wrap"><i class="tip-icon">i</i><div class="tip-box">Ссылка на регламент</div></span></td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn r on" onclick="tog(this)">R</div>
+            <div class="rasi-btn a on" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn s on" onclick="tog(this)">S</div>
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn a on" onclick="tog(this)">A</div>
+            <div class="rasi-btn s on" onclick="tog(this)">S</div>
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn s on" onclick="tog(this)">S</div>
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+        </tr>
+
+        <tr>
+          <td class="process-cell"><span class="process-icon">🧪</span>Регресс<span class="tip-wrap"><i class="tip-icon">i</i><div class="tip-box">Ссылка на регламент</div></span></td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn r on" onclick="tog(this)">R</div>
+            <div class="rasi-btn a on" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn s on" onclick="tog(this)">S</div>
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+        </tr>
+
+        <tr>
+          <td class="process-cell"><span class="process-icon">🚀</span>CI/CD<span class="tip-wrap"><i class="tip-icon">i</i><div class="tip-box">Ссылка на регламент</div></span></td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn r on" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn r on" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn a on" onclick="tog(this)">A</div>
+            <div class="rasi-btn s on" onclick="tog(this)">S</div>
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn a on" onclick="tog(this)">A</div>
+            <div class="rasi-btn s on" onclick="tog(this)">S</div>
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+        </tr>
+
+        <tr>
+          <td class="process-cell"><span class="process-icon">🚨</span>Дежурство<span class="tip-wrap"><i class="tip-icon">i</i><div class="tip-box">Ссылка на регламент</div></span></td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn r on" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn r on" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn a on" onclick="tog(this)">A</div>
+            <div class="rasi-btn s on" onclick="tog(this)">S</div>
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn a on" onclick="tog(this)">A</div>
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+        </tr>
+
+        <tr>
+          <td class="process-cell"><span class="process-icon">🛠️</span>Технический бэклог<span class="tip-wrap"><i class="tip-icon">i</i><div class="tip-box">Ссылка на регламент</div></span></td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn r on" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn r on" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn s on" onclick="tog(this)">S</div>
+            <div class="rasi-btn i on" onclick="tog(this)">I</div>
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn s on" onclick="tog(this)">S</div>
+            <div class="rasi-btn i on" onclick="tog(this)">I</div>
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn r on" onclick="tog(this)">R</div>
+            <div class="rasi-btn a on" onclick="tog(this)">A</div>
+            <div class="rasi-btn s on" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn a on" onclick="tog(this)">A</div>
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+        </tr>
+
+        <tr class="group-header"><td colspan="8">Люди и ресурсы</td></tr>
+
+        <tr>
+          <td class="process-cell"><span class="process-icon">📈</span>Развитие людей<span class="tip-wrap"><i class="tip-icon">i</i><div class="tip-box">Ссылка на регламент</div></span></td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn i on" onclick="tog(this)">I</div>
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn i on" onclick="tog(this)">I</div>
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn i on" onclick="tog(this)">I</div>
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn r on" onclick="tog(this)">R</div>
+            <div class="rasi-btn a on" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn r on" onclick="tog(this)">R</div>
+            <div class="rasi-btn a on" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn r on" onclick="tog(this)">R</div>
+            <div class="rasi-btn a on" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+        </tr>
+
+        <tr>
+          <td class="process-cell"><span class="process-icon">👥</span>Найм<span class="tip-wrap"><i class="tip-icon">i</i><div class="tip-box">Ссылка на регламент</div></span></td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn r on" onclick="tog(this)">R</div>
+            <div class="rasi-btn s on" onclick="tog(this)">S</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn s on" onclick="tog(this)">S</div>
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn r on" onclick="tog(this)">R</div>
+            <div class="rasi-btn a on" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+        </tr>
+
+        <tr>
+          <td class="process-cell"><span class="process-icon">💰</span>Компенсаторика<span class="tip-wrap"><i class="tip-icon">i</i><div class="tip-box">Ссылка на регламент</div></span></td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn a on" onclick="tog(this)">A</div>
+            <div class="rasi-btn s on" onclick="tog(this)">S</div>
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn r" onclick="tog(this)">R</div>
+            <div class="rasi-btn a" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+          <td class="rasi-cell">
+          <div class="rasi-toggles">
+            <div class="rasi-btn r on" onclick="tog(this)">R</div>
+            <div class="rasi-btn a on" onclick="tog(this)">A</div>
+            <div class="rasi-btn s" onclick="tog(this)">S</div>
+            <div class="rasi-btn i" onclick="tog(this)">I</div>
+          </div>
+        </td>
+        </tr>
+
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<script>
+  const order = ['r', 'a', 's', 'i'];
+
+  function tog(btn) {
+    btn.classList.toggle('on');
+    const wrap = btn.closest('.rasi-toggles');
+    const btns = [...wrap.querySelectorAll('.rasi-btn')];
+    const on = btns.filter(b => b.classList.contains('on')).sort((a, b) => order.indexOf([...a.classList].find(c => order.includes(c))) - order.indexOf([...b.classList].find(c => order.includes(c))));
+    const off = btns.filter(b => !b.classList.contains('on')).sort((a, b) => order.indexOf([...a.classList].find(c => order.includes(c))) - order.indexOf([...b.classList].find(c => order.includes(c))));
+    [...on, ...off].forEach(b => wrap.appendChild(b));
+  }
+</script>
+</body>
+</html>
