@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Карта субдоменов</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface2: #21263a;
+      --border: #2e3350;
+      --text: #e8eaf6;
+      --muted: #8b92b8;
+      --radius: 14px;
+      --accent: #6c63ff;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 40px 20px 80px;
+    }
+    .page-title {
+      text-align: center;
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 48px;
+      background: linear-gradient(135deg, #e8eaf6 30%, #6c63ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .domains-wrap {
+      display: flex;
+      gap: 32px;
+      justify-content: center;
+      flex-wrap: wrap;
+      align-items: flex-start;
+    }
+    .domain-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      width: 560px;
+      overflow: hidden;
+      transition: transform 0.35s cubic-bezier(.4,0,.2,1),
+                  opacity 0.35s ease,
+                  box-shadow 0.35s ease;
+      transform-origin: top center;
+      cursor: pointer;
+    }
+    .domain-card.focused {
+      transform: scale(1.25);
+      opacity: 1;
+      box-shadow: 0 0 0 2px #6c63ff66, 0 32px 64px #00000088;
+      cursor: default;
+      z-index: 10;
+      position: relative;
+    }
+    .domain-card.dimmed {
+      transform: scale(0.78);
+      opacity: 0.3;
+    }
+    .domain-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+    }
+    .domain-name {
+      font-size: 20px;
+      font-weight: 800;
+      outline: none;
+      background: transparent;
+      border: none;
+      color: var(--text);
+      width: 100%;
+    }
+    .domain-name:focus { border-bottom: 1px dashed var(--accent); }
+
+    .section {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .toolbar { display: flex; gap: 6px; flex-wrap: wrap; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      border-radius: 6px;
+      padding: 3px 10px;
+      cursor: pointer;
+      border: 1px solid;
+      transition: opacity 0.15s;
+      font-family: inherit;
+      user-select: none;
+    }
+    .btn:hover { opacity: 0.8; }
+    .btn-core  { color: #a78bfa; background: #6c63ff15; border-color: #6c63ff44; }
+    .btn-adj   { color: #f7971e; background: #f7971e15; border-color: #f7971e44; }
+    .btn-link  { color: #43e97b; background: #43e97b15; border-color: #43e97b44; }
+    .btn-link.active { background: #43e97b33; border-color: #43e97baa; }
+    .btn-del   { color: #f64f59; background: #f64f5915; border-color: #f64f5944; }
+    .btn-del.active { background: #f64f5933; border-color: #f64f59aa; }
+
+    .graph-wrap {
+      position: relative;
+      width: 100%;
+      height: 340px;
+      background: #12151e;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .graph-wrap svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .graph-hint {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 11px;
+      color: #3e4570;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    .edge-input-overlay {
+      position: absolute;
+      background: var(--surface2);
+      border: 1px solid #43e97b55;
+      border-radius: 6px;
+      padding: 3px 8px;
+      font-size: 11px;
+      color: #43e97b;
+      font-family: 'JetBrains Mono', monospace;
+      outline: none;
+      z-index: 10;
+      min-width: 120px;
+      display: none;
+    }
+
+    /* Edge memo modal */
+    .edge-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: #00000088;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(4px);
+    }
+    .edge-modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      width: 520px;
+      max-width: 95vw;
+      box-shadow: 0 32px 80px #00000099;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      overflow: hidden;
+    }
+    .edge-modal-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .edge-modal-title {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      flex: 1;
+    }
+    .edge-modal-iface {
+      background: transparent;
+      border: none;
+      border-bottom: 1px dashed #43e97b66;
+      color: #43e97b;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      font-weight: 700;
+      outline: none;
+      flex: 2;
+      padding: 2px 4px;
+    }
+    .edge-modal-iface::placeholder { color: #3e5040; font-weight: 400; }
+    .edge-modal-body {
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .edge-modal-memo-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .edge-modal-memo {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 13px;
+      line-height: 1.6;
+      padding: 12px 14px;
+      outline: none;
+      resize: vertical;
+      min-height: 160px;
+      max-height: 400px;
+      transition: border-color 0.15s;
+    }
+    .edge-modal-memo:focus { border-color: var(--accent); }
+    .edge-modal-memo::placeholder { color: #3e4570; }
+    .edge-modal-footer {
+      padding: 12px 20px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+    .edge-modal-btn {
+      padding: 7px 18px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      border: 1px solid;
+      transition: opacity 0.15s;
+    }
+    .edge-modal-btn:hover { opacity: 0.8; }
+    .edge-modal-btn-save {
+      background: #6c63ff22;
+      border-color: #6c63ff66;
+      color: #a78bfa;
+    }
+    .edge-modal-btn-cancel {
+      background: transparent;
+      border-color: var(--border);
+      color: var(--muted);
+    }
+
+    .leads-list { display: flex; flex-direction: column; gap: 8px; }
+    .lead-item {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .lead-avatar {
+      width: 32px; height: 32px; border-radius: 10px;
+      background: #43e97b18; border: 1px solid #43e97b33;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; flex-shrink: 0;
+    }
+    .lead-name {
+      outline: none; background: transparent; border: none;
+      color: var(--text); font-size: 13px; font-weight: 600;
+      font-family: inherit; flex: 1; min-width: 60px;
+    }
+    .lead-name::placeholder { color: var(--muted); font-weight: 400; }
+    .del-btn {
+      width: 18px; height: 18px; border-radius: 50%;
+      background: transparent; border: 1px solid var(--border);
+      color: var(--muted); font-size: 10px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: all 0.15s;
+    }
+    .del-btn:hover { background: #f64f5922; border-color: #f64f59; color: #f64f59; }
+
+    .add-domain-wrap { display: flex; justify-content: center; margin-top: 32px; }
+    .add-domain-btn {
+      display: flex; align-items: center; gap: 8px;
+      padding: 12px 24px; background: var(--surface);
+      border: 1px dashed var(--border); border-radius: 14px;
+      color: var(--muted); font-size: 14px; font-weight: 600;
+      cursor: pointer; transition: border-color 0.15s, color 0.15s;
+      font-family: inherit;
+    }
+    .add-domain-btn:hover { border-color: var(--accent); color: var(--accent); }
+  </style>
+</head>
+<body>
+  <div class="page-title">Карта субдоменов</div>
+  <div class="domains-wrap" id="domains"></div>
+  <div class="add-domain-wrap">
+    <button class="add-domain-btn" onclick="addDomain()">+ Добавить субдомен</button>
+  </div>
+
+<script>
+function createGraph(domainId, initialNodes, initialEdges) {
+  const SVG_NS = 'http://www.w3.org/2000/svg';
+  const wrap = document.createElement('div');
+  wrap.className = 'graph-wrap';
+
+  const svg = document.createElementNS(SVG_NS, 'svg');
+  const defs = document.createElementNS(SVG_NS, 'defs');
+
+  [['arr-default','#8b92b8']].forEach(([id, color]) => {
+    const marker = document.createElementNS(SVG_NS, 'marker');
+    marker.setAttribute('id', id + '-' + domainId);
+    marker.setAttribute('markerWidth', '8');
+    marker.setAttribute('markerHeight', '8');
+    marker.setAttribute('refX', '6');
+    marker.setAttribute('refY', '3');
+    marker.setAttribute('orient', 'auto');
+    const p = document.createElementNS(SVG_NS, 'path');
+    p.setAttribute('d', 'M0,0 L0,6 L8,3 z');
+    p.setAttribute('fill', color);
+    marker.appendChild(p);
+    defs.appendChild(marker);
+  });
+
+  svg.appendChild(defs);
+  const edgeGroup = document.createElementNS(SVG_NS, 'g');
+  const nodeGroup = document.createElementNS(SVG_NS, 'g');
+  svg.appendChild(edgeGroup);
+  svg.appendChild(nodeGroup);
+  wrap.appendChild(svg);
+
+  const hint = document.createElement('div');
+  hint.className = 'graph-hint';
+  hint.textContent = 'Перетаскивай узлы · Связать: клик на два узла · Двойной клик на связь — интерфейс';
+  wrap.appendChild(hint);
+
+  // modal lives on body, shared singleton per graph
+  let modal = null;
+  let modalEditIdx = null;
+
+  function openEdgeModal(idx) {
+    if (modal) modal.remove();
+    modalEditIdx = idx;
+    const e = edges[idx];
+
+    modal = document.createElement('div');
+    modal.className = 'edge-modal-backdrop';
+    modal.innerHTML = `
+      <div class="edge-modal" onclick="event.stopPropagation()">
+        <div class="edge-modal-header">
+          <span class="edge-modal-title">Связь</span>
+          <input class="edge-modal-iface" placeholder="InterfaceName" value="${e.label || ''}">
+        </div>
+        <div class="edge-modal-body">
+          <div class="edge-modal-memo-label">Заметка</div>
+          <textarea class="edge-modal-memo" placeholder="Опиши назначение связи, особенности контракта, ограничения...">${e.memo || ''}</textarea>
+        </div>
+        <div class="edge-modal-footer">
+          <button class="edge-modal-btn edge-modal-btn-cancel">Отмена</button>
+          <button class="edge-modal-btn edge-modal-btn-save">Сохранить</button>
+        </div>
+      </div>
+    `;
+
+    modal.querySelector('.edge-modal-btn-cancel').addEventListener('click', closeModal);
+    modal.querySelector('.edge-modal-btn-save').addEventListener('click', saveModal);
+    modal.addEventListener('click', closeModal);
+    modal.addEventListener('keydown', ev => {
+      if (ev.key === 'Escape') closeModal();
+      if (ev.key === 'Enter' && ev.ctrlKey) saveModal();
+    });
+
+    document.body.appendChild(modal);
+    modal.querySelector('.edge-modal-iface').focus();
+  }
+
+  function saveModal() {
+    if (modalEditIdx === null || !modal) return;
+    edges[modalEditIdx].label = modal.querySelector('.edge-modal-iface').value.trim();
+    edges[modalEditIdx].memo  = modal.querySelector('.edge-modal-memo').value;
+    closeModal();
+    render();
+  }
+
+  function closeModal() {
+    if (modal) { modal.remove(); modal = null; }
+    modalEditIdx = null;
+  }
+
+  let nodes = initialNodes ? initialNodes.map((n,i) => ({...n, id: i+1})) : [];
+  let edges = initialEdges ? initialEdges.map(e => ({...e})) : [];
+  let mode = 'default';
+  let linkFrom = null;
+  let idCounter = nodes.length;
+
+  function nodeRadius(n) { return n.type === 'core' ? 38 : 30; }
+  function nodeColor(type) {
+    return type === 'core'
+      ? { fill: '#6c63ff22', stroke: '#a78bfa', text: '#a78bfa' }
+      : { fill: '#f7971e18', stroke: '#f7971e88', text: '#f7971e' };
+  }
+
+  function render() {
+    edgeGroup.innerHTML = '';
+    edges.forEach((e, i) => {
+      const from = nodes.find(n => n.id === e.from);
+      const to   = nodes.find(n => n.id === e.to);
+      if (!from || !to) return;
+      const dx = to.x - from.x, dy = to.y - from.y;
+      const dist = Math.sqrt(dx*dx + dy*dy) || 1;
+      const x1 = from.x + dx/dist * (nodeRadius(from)+2);
+      const y1 = from.y + dy/dist * (nodeRadius(from)+2);
+      const x2 = to.x   - dx/dist * (nodeRadius(to)+2);
+      const y2 = to.y   - dy/dist * (nodeRadius(to)+2);
+      const mx = (x1+x2)/2, my = (y1+y2)/2;
+
+      const line = document.createElementNS(SVG_NS, 'line');
+      line.setAttribute('x1', x1); line.setAttribute('y1', y1);
+      line.setAttribute('x2', x2); line.setAttribute('y2', y2);
+      line.setAttribute('stroke', '#3e4570');
+      line.setAttribute('stroke-width', '1.5');
+      line.setAttribute('marker-end', `url(#arr-default-${domainId})`);
+      line.style.cursor = 'pointer';
+      line.addEventListener('dblclick', ev => { ev.stopPropagation(); openEdgeModal(i); });
+      line.addEventListener('click', e => { e.stopPropagation(); if (mode === 'delete') { edges.splice(i,1); render(); } });
+      edgeGroup.appendChild(line);
+
+      if (e.label) {
+        const tw = e.label.length * 6.5 + 12;
+        const bg = document.createElementNS(SVG_NS, 'rect');
+        bg.setAttribute('x', mx - tw/2); bg.setAttribute('y', my - 10);
+        bg.setAttribute('width', tw); bg.setAttribute('height', 18);
+        bg.setAttribute('rx', 4); bg.setAttribute('fill', '#12151e');
+        bg.setAttribute('stroke', '#43e97b33');
+        edgeGroup.appendChild(bg);
+
+        const txt = document.createElementNS(SVG_NS, 'text');
+        txt.setAttribute('x', mx); txt.setAttribute('y', my + 4);
+        txt.setAttribute('text-anchor', 'middle');
+        txt.setAttribute('font-size', '10');
+        txt.setAttribute('font-family', 'monospace');
+        txt.setAttribute('fill', '#43e97b');
+        txt.textContent = e.label;
+        txt.style.cursor = 'pointer';
+        txt.addEventListener('dblclick', ev => { ev.stopPropagation(); openEdgeModal(i); });
+        edgeGroup.appendChild(txt);
+      }
+    });
+
+    nodeGroup.innerHTML = '';
+    nodes.forEach(n => {
+      const c = nodeColor(n.type);
+      const r = nodeRadius(n);
+      const g = document.createElementNS(SVG_NS, 'g');
+      g.style.cursor = mode === 'delete' ? 'pointer' : 'grab';
+
+      const circle = document.createElementNS(SVG_NS, 'circle');
+      circle.setAttribute('cx', n.x); circle.setAttribute('cy', n.y); circle.setAttribute('r', r);
+      circle.setAttribute('fill', c.fill);
+      circle.setAttribute('stroke', n === linkFrom ? '#43e97b' : c.stroke);
+      circle.setAttribute('stroke-width', n === linkFrom ? '2.5' : '1.5');
+      g.appendChild(circle);
+
+      const words = n.name.split(' ');
+      const lines = [];
+      let cur = '';
+      words.forEach(w => {
+        if ((cur + w).length > 10 && cur) { lines.push(cur.trim()); cur = w + ' '; }
+        else cur += w + ' ';
+      });
+      if (cur.trim()) lines.push(cur.trim());
+      const lh = 14, th = lines.length * lh;
+      lines.forEach((l, li) => {
+        const t = document.createElementNS(SVG_NS, 'text');
+        t.setAttribute('x', n.x); t.setAttribute('y', n.y - th/2 + li*lh + 11);
+        t.setAttribute('text-anchor', 'middle');
+        t.setAttribute('font-size', '11'); t.setAttribute('font-weight', '700');
+        t.setAttribute('fill', c.text); t.setAttribute('pointer-events', 'none');
+        t.textContent = l;
+        g.appendChild(t);
+      });
+
+      g.addEventListener('click', e => {
+        e.stopPropagation();
+        if (mode === 'delete') {
+          nodes = nodes.filter(x => x !== n);
+          edges = edges.filter(e => e.from !== n.id && e.to !== n.id);
+          render(); return;
+        }
+        if (mode === 'link') {
+          if (!linkFrom) { linkFrom = n; render(); return; }
+          if (linkFrom !== n) edges.push({ from: linkFrom.id, to: n.id, label: '' });
+          linkFrom = null; render();
+        }
+      });
+      g.addEventListener('dblclick', () => {
+        const name = prompt('Название:', n.name);
+        if (name !== null) { n.name = name || n.name; render(); }
+      });
+
+      makeDraggable(g, n);
+      nodeGroup.appendChild(g);
+    });
+  }
+
+
+  function makeDraggable(el, n) {
+    let dragging = false, ox, oy;
+    el.addEventListener('mousedown', e => {
+      if (mode !== 'default') return;
+      const rect = svg.getBoundingClientRect();
+      dragging = true;
+      ox = e.clientX - rect.left - n.x;
+      oy = e.clientY - rect.top  - n.y;
+      e.preventDefault(); e.stopPropagation();
+    });
+    window.addEventListener('mousemove', e => {
+      if (!dragging) return;
+      const rect = svg.getBoundingClientRect();
+      n.x = e.clientX - rect.left - ox;
+      n.y = e.clientY - rect.top  - oy;
+      render();
+    });
+    window.addEventListener('mouseup', () => { dragging = false; });
+  }
+
+  function addNode(type) {
+    const rect = svg.getBoundingClientRect();
+    const cx = rect.width / 2, cy = rect.height / 2;
+    const angle = Math.random() * Math.PI * 2;
+    const r = type === 'core' ? 90 : 170;
+    nodes.push({
+      id: ++idCounter,
+      name: type === 'core' ? 'Сервис' : 'Смежный',
+      type,
+      x: cx + Math.cos(angle)*r + (Math.random()-0.5)*30,
+      y: cy + Math.sin(angle)*r + (Math.random()-0.5)*30
+    });
+    render();
+  }
+
+  function setMode(m) {
+    mode = m; linkFrom = null;
+    wrap.style.cursor = m === 'link' ? 'crosshair' : m === 'delete' ? 'not-allowed' : 'default';
+    render();
+  }
+
+  svg.addEventListener('click', e => { e.stopPropagation(); });
+
+  render();
+
+  function resetMode() {
+    mode = 'default'; linkFrom = null;
+    wrap.style.cursor = 'default';
+    render();
+  }
+
+  return { wrap, addNode, setMode, resetMode };
+}
+
+// ── Domain builder ──────────────────────────────────────────────────────────
+let domainCounter = 0;
+const allGraphInstances = [];
+
+function addDomain(name, initialNodes, initialEdges) {
+  const domainsEl = document.getElementById('domains');
+  const id = ++domainCounter;
+  const card = document.createElement('div');
+  card.className = 'domain-card';
+  card.dataset.id = id;
+
+  card.innerHTML = `
+    <div class="domain-header">
+      <input class="domain-name" placeholder="Название субдомена" value="${name || ''}">
+    </div>
+    <div class="section">
+      <div class="section-label">
+        <span>Граф сервисов и интерфейсов</span>
+        <div class="toolbar">
+          <button class="btn btn-core" data-action="core">+ Core</button>
+          <button class="btn btn-adj"  data-action="adj">+ Смежный</button>
+          <button class="btn btn-link" data-action="link">⇢ Связать</button>
+          <button class="btn btn-del"  data-action="delete">✕ Удалить</button>
+        </div>
+      </div>
+      <div class="graph-container"></div>
+    </div>
+    <div class="section" style="border-bottom:none">
+      <div class="section-label">
+        Тех лиды
+        <button class="btn btn-core" onclick="addLead(this)">+ тех лид</button>
+      </div>
+      <div class="leads-list"></div>
+    </div>
+  `;
+
+  domainsEl.appendChild(card);
+
+  const graph = createGraph(id, initialNodes, initialEdges);
+  card.querySelector('.graph-container').appendChild(graph.wrap);
+
+  let currentMode = 'default';
+  function resetCard() {
+    currentMode = 'default';
+    graph.resetMode();
+    card.querySelectorAll('[data-action="link"],[data-action="delete"]').forEach(b => b.classList.remove('active'));
+  }
+  allGraphInstances.push({ resetCard });
+  card.querySelectorAll('[data-action]').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const action = btn.dataset.action;
+      if (action === 'core' || action === 'adj') {
+        currentMode = 'default';
+        graph.setMode('default');
+        card.querySelectorAll('[data-action="link"],[data-action="delete"]').forEach(b => b.classList.remove('active'));
+        graph.addNode(action);
+      } else {
+        const newMode = currentMode === action ? 'default' : action;
+        currentMode = newMode;
+        graph.setMode(newMode);
+        card.querySelectorAll('[data-action="link"],[data-action="delete"]').forEach(b => b.classList.remove('active'));
+        if (newMode !== 'default') btn.classList.add('active');
+      }
+    });
+  });
+}
+
+function addLead(btn) {
+  const list = btn.closest('.section').querySelector('.leads-list');
+  const item = document.createElement('div');
+  item.className = 'lead-item';
+  item.innerHTML = `
+    <div class="lead-avatar">👤</div>
+    <input class="lead-name" placeholder="ФИО тех лида">
+    <button class="del-btn" onclick="this.closest('.lead-item').remove()">✕</button>
+  `;
+  list.appendChild(item);
+  item.querySelector('.lead-name').focus();
+}
+
+// Focus
+document.getElementById('domains').addEventListener('click', e => {
+  if (e.target.closest('button, input, [contenteditable], .graph-wrap')) return;
+  const card = e.target.closest('.domain-card');
+  if (!card) return;
+  const cards = document.querySelectorAll('.domain-card');
+  const isFocused = card.classList.contains('focused');
+  cards.forEach(c => c.classList.remove('focused', 'dimmed'));
+  if (!isFocused) {
+    card.classList.add('focused');
+    cards.forEach(c => { if (c !== card) c.classList.add('dimmed'); });
+  }
+});
+document.addEventListener('click', e => {
+  if (!e.target.closest('.domain-card')) {
+    document.querySelectorAll('.domain-card').forEach(c => c.classList.remove('focused', 'dimmed'));
+    allGraphInstances.forEach(({ resetCard }) => resetCard());
+  }
+});
+
+addDomain('Клиент', [
+  { name: 'LPS',   type: 'core', x: 150, y: 115 },
+  { name: 'LOANS', type: 'adj',  x: 430, y: 115 },
+  { name: 'DPPS',  type: 'core', x: 180, y: 200 },
+  { name: 'LPACS', type: 'core', x: 230, y: 270 },
+  { name: 'LADS',  type: 'core', x: 305, y: 305 },
+  { name: 'MAS',   type: 'core', x: 380, y: 305 },
+  { name: 'PCS',   type: 'core', x: 450, y: 305 },
+  { name: 'PDAC',  type: 'core', x: 510, y: 295 }
+], [
+  { from: 1, to: 2, label: '' }
+]);
+
+addDomain('Скоринг', [
+  { name: 'LSS',   type: 'core', x: 155, y: 130 },
+  { name: 'CRS',   type: 'core', x: 370, y: 130 },
+  { name: 'FRODO', type: 'core', x: 155, y: 255 },
+  { name: 'PROOF', type: 'core', x: 370, y: 255 }
+]);
+</script>
+</body>
+</html>
