@@ -2,6 +2,7 @@
 # ── Конфигурация ──────────────────────────────────────────────
 JIRA_BASE_URL=""
 JIRA_TOKEN=""
+JQL_FILE="jql.txt"
 JQL=""
 MAX_RESULTS=50
 DELAY_EPIC=0.1
@@ -14,8 +15,18 @@ CHILD_KEY_PREFIX="QBS"
 if ! command -v jq &> /dev/null; then
   echo "❌ jq не установлен"; exit 1
 fi
+
+# Читаем JQL из файла если не задан явно
 if [[ -z "${JQL}" ]]; then
-  echo "❌ JQL не задан"; exit 1
+  if [[ ! -f "${JQL_FILE}" ]]; then
+    echo "❌ JQL не задан и файл ${JQL_FILE} не найден"; exit 1
+  fi
+  JQL=$(tr '\r\n' ' ' < "${JQL_FILE}" | sed 's/^[[:space:]]*//; s/[[:space:]]*$//')
+  echo "📄 JQL загружен из ${JQL_FILE}"
+fi
+
+if [[ -z "${JQL}" ]]; then
+  echo "❌ JQL пустой"; exit 1
 fi
 
 # ── Функция: репозитории задачи ───────────────────────────────
@@ -134,7 +145,7 @@ get_status_dates() {
 }
 
 # ── Заголовок CSV ─────────────────────────────────────────────
-echo "URL эпика;Story Points;Дата создания;Ready;Refinement;To Dev;In Dev;Ready to Deploy;Released;Репозитории" > "${CSV_FILE}"
+echo "URL эпика;Story Points;Дата создания;Ready;Refinement;To Dev;In Dev;Ready to Deploy;Released;Репозитории;Команда (key);Команда (название)" > "${CSV_FILE}"
 
 # ── Основной цикл с пагинацией ────────────────────────────────
 start_at=0
@@ -152,7 +163,7 @@ while [[ "${start_at}" -lt "${total}" ]]; do
       jql:        $jql,
       maxResults: $maxResults,
       startAt:    $startAt,
-      fields:     ["summary", "customfield_34152", "created"]
+      fields:     ["summary", "customfield_34152", "created", "customfield_56351"]
     }')
 
   http_code=$(curl -s \
@@ -183,6 +194,8 @@ while [[ "${start_at}" -lt "${total}" ]]; do
     summary=$(jq -r ".issues[${i}].fields.summary // \"—\"" /tmp/ea_search.json)
     story_points=$(jq -r ".issues[${i}].fields.customfield_34152.value // \"\"" /tmp/ea_search.json)
     created=$(jq -r ".issues[${i}].fields.created // \"\" | .[:10]" /tmp/ea_search.json)
+    team_key=$(jq -r ".issues[${i}].fields.customfield_56351.key // \"\"" /tmp/ea_search.json)
+    team_name=$(jq -r ".issues[${i}].fields.customfield_56351.fields.summary // \"\"" /tmp/ea_search.json)
 
     echo "────────────────────────────────────────────────────────"
     echo "📋 Агрегат: ${epic_key} | ${summary}"
@@ -251,7 +264,8 @@ while [[ "${start_at}" -lt "${total}" ]]; do
     done
 
     echo "  📦 Итого репозитории по агрегату: ${all_repos:-пусто}"
-    echo "${epic_url};${story_points};${created};${status_dates};${all_repos}" >> "${CSV_FILE}"
+    echo "  👥 Команда: ${team_key:-—} | ${team_name:-—}"
+    echo "${epic_url};${story_points};${created};${status_dates};${all_repos};${team_key};${team_name}" >> "${CSV_FILE}"
   done
 
   start_at=$((start_at + count))
