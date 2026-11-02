@@ -1,18 +1,27 @@
 #!/bin/bash
-JIRA_BASE_URL=""
-JIRA_TOKEN=""
-EPIC_KEY="${1:-QBS-123}"
+JIRA_BASE_URL="https://ТВОЙ_JIRA.com"   # ← сюда
+JIRA_TOKEN="ТВОЙ_ТОКЕН"                  # ← сюда
+EPIC_KEY="QBS-XXX"                       # ← сюда реальный ключ эпика
 
 echo "═══════════════════════════════════════"
 echo "🔍 Changelog для: ${EPIC_KEY}"
 echo "═══════════════════════════════════════"
 
-curl -s \
+http_code=$(curl -s \
+  -o /tmp/cl_debug.json \
+  -w "%{http_code}" \
   -X GET \
   -H "Authorization: Bearer ${JIRA_TOKEN}" \
   -H "Accept: application/json" \
-  "${JIRA_BASE_URL}/rest/api/2/issue/${EPIC_KEY}/changelog?startAt=0&maxResults=10" \
-  -o /tmp/cl_debug.json
+  "${JIRA_BASE_URL}/rest/api/2/issue/${EPIC_KEY}/changelog?startAt=0&maxResults=10")
+
+echo "HTTP: ${http_code}"
+
+if [[ "${http_code}" != "200" ]]; then
+  echo "❌ Ошибка запроса — сырой ответ:"
+  cat /tmp/cl_debug.json
+  exit 1
+fi
 
 echo "── Структура ответа (верхний уровень) ──"
 jq '{total, maxResults, startAt, values_count: (.values | length)}' /tmp/cl_debug.json
