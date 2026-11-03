@@ -1,0 +1,967 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Поток задач</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: инструментальная панель — шапка с загрузкой, фильтры (метрика, группа сервисов, период), ряд KPI, выводы, сетка карточек-графиков 2→1 колонка */
+:root{
+  --bg:#f3f6f8; --surface:#ffffff; --fg:#16202a; --muted:#5a6775; --line:#d8e0e7; --grid:#e9eef2;
+  --accent:#1f6f8b; --c2:#c9822a; --c3:#c2475a; --c4:#8a97a4; --c5:#7a62ad; --c6:#4f8f6f; --heat0:#edf3f6;
+  --f-body:"Golos Text",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"Cascadia Mono",Consolas,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e1317; --surface:#151c22; --fg:#e3e9ee; --muted:#92a0ad; --line:#29333c; --grid:#1e272e;
+  --accent:#4fb0cf; --c2:#e1a24d; --c3:#e06878; --c4:#6c7a87; --c5:#a28fd8; --c6:#7cc29f; --heat0:#18222a; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0e1317; --surface:#151c22; --fg:#e3e9ee; --muted:#92a0ad; --line:#29333c; --grid:#1e272e;
+  --accent:#4fb0cf; --c2:#e1a24d; --c3:#e06878; --c4:#6c7a87; --c5:#a28fd8; --c6:#7cc29f; --heat0:#18222a; color-scheme:dark }
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0; background:var(--bg); color:var(--fg); font-family:var(--f-body); font-size:14px; line-height:1.5}
+.wrap{max-width:1280px; margin:0 auto; padding-inline:clamp(16px,3vw,32px); padding-block:24px 48px; display:grid; gap:20px}
+h1{font-size:1.6rem; font-weight:600; margin:0; letter-spacing:-.01em; text-wrap:balance}
+h2{font-size:.95rem; font-weight:600; margin:0}
+.sub{color:var(--muted); margin:2px 0 0}
+.num{font-family:var(--f-mono); font-variant-numeric:tabular-nums}
+
+header{display:flex; flex-wrap:wrap; gap:16px; align-items:flex-end; justify-content:space-between}
+.actions{display:flex; flex-wrap:wrap; gap:8px; align-items:center}
+button,.btn{font:inherit; font-weight:500; border:1px solid var(--line); background:var(--surface); color:var(--fg); border-radius:8px; padding:7px 14px; cursor:pointer}
+button:hover,.btn:hover{border-color:var(--accent)}
+button:disabled{opacity:.5; cursor:default}
+.btn.primary{background:var(--accent); border-color:var(--accent); color:var(--surface)}
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+.source{font-size:.85rem; color:var(--muted); padding:4px 10px; border:1px dashed var(--line); border-radius:999px}
+.source b{color:var(--fg); font-weight:500}
+
+.filters{display:grid; gap:12px; padding:12px 16px; background:var(--surface); border:1px solid var(--line); border-radius:var(--r)}
+.frow{display:flex; flex-wrap:wrap; gap:12px 20px; align-items:end}
+.filters label,.flabel{display:grid; gap:4px; font-size:.75rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em}
+.filters select,.filters input{font:inherit; font-size:.9rem; color:var(--fg); background:var(--bg); border:1px solid var(--line); border-radius:6px; padding:5px 8px; min-width:0; text-transform:none; letter-spacing:0}
+.filters input.bad{border-color:var(--c3)}
+.filters .count{margin-left:auto; color:var(--muted); font-size:.85rem}
+.group{display:flex; flex-wrap:wrap; gap:6px; align-items:center; min-height:30px}
+.group .all{font-size:.88rem; color:var(--muted)}
+.gchip{display:inline-flex; align-items:center; gap:4px; font-size:.85rem; padding:2px 4px 2px 10px; border-radius:999px; background:color-mix(in srgb,var(--accent) 14%,transparent); color:var(--fg); border:1px solid color-mix(in srgb,var(--accent) 40%,transparent)}
+.gchip button{border:0; background:transparent; padding:0 6px; color:var(--muted); font-size:1rem; line-height:1}
+.gchip button:hover{color:var(--c3)}
+.tip{font-size:.8rem; color:var(--muted)}
+.mbadge{display:grid; gap:0; padding:4px 12px; border-radius:8px; border:1px solid var(--line); min-height:38px; align-content:center}
+.mbadge b{font-weight:600; color:var(--accent)}
+.mbadge.custom b{color:var(--fg)}
+.mbadge small{color:var(--muted); font-size:.78rem}
+.sptog{display:flex; flex-wrap:wrap; gap:4px; text-transform:none; letter-spacing:0}
+.sptog button{padding:4px 10px; font-family:var(--f-mono); font-size:.85rem; font-weight:400}
+.sptog button[aria-pressed="true"]{background:var(--accent); border-color:var(--accent); color:var(--surface)}
+.chead{display:flex; flex-wrap:wrap; gap:8px 16px; align-items:center; justify-content:space-between}
+.chead label{font-size:.82rem; color:var(--muted)}
+.chead select{font:inherit; font-size:.85rem; color:var(--fg); background:var(--bg); border:1px solid var(--line); border-radius:6px; padding:3px 6px}
+
+.kpis{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:var(--r); overflow:hidden}
+.kpi{background:var(--surface); padding:12px 16px; display:grid; gap:2px; align-content:start}
+.kpi .l{font-size:.72rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em}
+.kpi .v{font-family:var(--f-mono); font-variant-numeric:tabular-nums; font-size:1.45rem; font-weight:500}
+.kpi .v small{font-size:.8rem; color:var(--muted); font-weight:400}
+.kpi.key .v{color:var(--accent)}
+
+.insights{margin:0; padding:14px 18px 14px 34px; background:var(--surface); border:1px solid var(--line); border-radius:var(--r); display:grid; gap:6px}
+.insights li{max-width:95ch}
+.insights b{font-weight:600}
+
+.grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,460px),1fr)); gap:16px}
+.card{background:var(--surface); border:1px solid var(--line); border-radius:var(--r); padding:14px 16px; display:grid; gap:6px; min-width:0; align-content:start}
+.card.wide{grid-column:1/-1}
+.card p.hint{margin:0; color:var(--muted); font-size:.85rem; max-width:90ch}
+.chart{width:100%; height:300px}
+.chart.tall{height:460px}
+
+.tbl{overflow-x:auto}
+table{border-collapse:collapse; width:100%; font-size:.88rem}
+th{text-align:left; font-weight:500; color:var(--muted); font-size:.75rem; text-transform:uppercase; letter-spacing:.04em; padding:6px 8px; border-bottom:1px solid var(--line); white-space:nowrap}
+td{padding:6px 8px; border-bottom:1px solid var(--grid); vertical-align:top}
+td.r,th.r{text-align:right}
+.chip{display:inline-block; font-size:.75rem; padding:1px 8px; border-radius:999px; white-space:nowrap}
+.chip.warn{background:color-mix(in srgb,var(--c2) 18%,transparent); color:var(--c2)}
+.chip.crit{background:color-mix(in srgb,var(--c3) 18%,transparent); color:var(--c3)}
+.chip.ok{background:color-mix(in srgb,var(--c6) 18%,transparent); color:var(--c6)}
+.svc{color:var(--muted)}
+/* подсказки «как считается»: значок ⓘ, всплывашка одна на страницу (fixed, чтобы не обрезалась таблицей) */
+.tip{display:inline-grid; place-items:center; width:15px; height:15px; margin-left:4px; border-radius:50%; border:1px solid currentColor; color:var(--muted); font:500 10px/1 var(--f-body); text-transform:none; letter-spacing:0; cursor:help; vertical-align:1px}
+.tip:hover,.tip:focus-visible{color:var(--accent)}
+#tipBox{position:fixed; z-index:50; max-width:min(340px,calc(100vw - 32px)); padding:8px 10px; border-radius:8px; background:var(--fg); color:var(--bg); font-size:.8rem; line-height:1.45; pointer-events:none; box-shadow:0 4px 16px rgb(0 0 0 / .18)}
+.empty{color:var(--muted); padding:8px 0}
+
+details.format{font-size:.88rem}
+details.format summary{cursor:pointer; color:var(--muted)}
+details.format pre{background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:10px 12px; overflow-x:auto; font-family:var(--f-mono); font-size:.8rem; margin:8px 0}
+details.format ul{margin:6px 0; padding-left:20px; color:var(--muted)}
+details.format code{font-family:var(--f-mono); font-size:.82rem; color:var(--fg)}
+
+body.dragging .wrap{outline:2px dashed var(--accent); outline-offset:-8px; border-radius:16px}
+.err{color:var(--c3); font-size:.88rem}
+footer{color:var(--muted); font-size:.8rem; max-width:110ch}
+@media (prefers-reduced-motion: reduce){*{animation:none!important; transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Поток задач</h1>
+      <p class="sub">Время по стадиям, оценки в SP и связанность сервисов по выгрузке задач</p>
+    </div>
+    <div class="actions">
+      <span class="source" id="source"></span>
+      <button type="button" id="btnDemo">Демо-данные</button>
+      <label class="btn primary" for="file">Загрузить CSV</label>
+      <input type="file" id="file" accept=".csv,text/csv,text/plain" hidden>
+    </div>
+  </header>
+
+  <details class="format">
+    <summary>Формат CSV (можно перетащить файл на страницу)</summary>
+    <pre id="fmt">URL эпика;Story Points;Дата создания;Ready;Refinement;To Dev;In Dev;Ready to Deploy;Released;Репозитории;Команда (key);Команда (название)
+https://jira.example.com/browse/PAY-101;5;2026-03-02;2026-03-02;2026-03-05;2026-03-04;2026-03-09;2026-03-16;2026-03-19;billing, ledger;PAY;Платежи
+https://jira.example.com/browse/ORD-402;3;12.03.2026;13.03.2026;;16.03.2026;18.03.2026;;;orders, cart;ORD;Заказы</pre>
+    <button type="button" id="btnCopy">Скопировать пример</button>
+    <ul>
+      <li>Колонки определяются по заголовку без учёта регистра, порядок не важен. Обязательны эпик, репозитории и хотя бы одна дата. Story Points, отдельные статусы и команда необязательны.</li>
+      <li>Также понимаются английские названия: <code>task</code>, <code>sp</code>, <code>created</code>, <code>ready</code>, <code>in_refinement</code>, <code>to_dev</code>, <code>in_dev</code>, <code>ready_to_deploy</code>, <code>done</code>, <code>services</code>, <code>team</code>.</li>
+      <li>Если в колонке эпика ссылка, на графиках показывается её последний фрагмент (ключ), а в таблице задач в работе — ссылка.</li>
+      <li>Пустая дата означает, что задача ещё не дошла до стадии. Если промежуточная дата пропущена, а более поздняя есть, считается, что стадия пройдена в день следующей известной даты.</li>
+      <li>Разделитель <code>;</code> или <code>,</code> определяется сам. При <code>,</code> список сервисов возьмите в кавычки.</li>
+      <li>Даты: <code>ГГГГ-ММ-ДД</code>, <code>ДД.ММ.ГГГГ</code> или как в Jira, <code>01/Oct/26</code>; время после даты игнорируется. Старый формат из пяти колонок (<code>task;sp;start;end;services</code>) тоже читается.</li>
+      <li>Файл обрабатывается только в браузере и никуда не отправляется.</li>
+    </ul>
+  </details>
+  <div class="err" id="err" hidden></div>
+
+  <div class="filters">
+    <div class="frow">
+      <label for="fFromSt">От статуса<select id="fFromSt"></select></label>
+      <label for="fToSt">До статуса<select id="fToSt"></select></label>
+      <span class="mbadge" id="mBadge"></span>
+      <label for="fDateSt">Переход в статус<select id="fDateSt"></select></label>
+      <label for="fQ">Период<select id="fQ"><option value="">Любой</option></select></label>
+      <label for="fFrom">с<input type="date" id="fFrom"></label>
+      <label for="fTo">по<input type="date" id="fTo"></label>
+      <button type="button" id="btnReset">Сбросить всё</button>
+      <span class="count" id="fCount"></span>
+    </div>
+    <div class="frow">
+      <label for="fSvcAdd">Добавить сервис в группу<input id="fSvcAdd" list="svcList" placeholder="начните вводить…" autocomplete="off"><datalist id="svcList"></datalist></label>
+      <label for="fMode">Какие задачи брать<select id="fMode">
+        <option value="any">Затрагивают любой из группы</option>
+        <option value="all">Затрагивают все сервисы группы</option>
+        <option value="only">Только внутри группы</option>
+        <option value="cross">Выходят за границу группы</option>
+      </select></label>
+      <button type="button" id="btnAll">Все сервисы</button>
+      <label for="fTeam">Команда<select id="fTeam"><option value="">Все команды</option></select></label>
+      <label for="fHasSvc">Сервисы в эпике<select id="fHasSvc"><option value="">Все эпики</option><option value="yes">Есть</option><option value="no">Нет</option></select></label>
+      <label for="fRef" id="fRefWrap">Проработка<select id="fRef"><option value="">Все эпики</option><option value="yes">Была</option><option value="no">Не было</option></select></label>
+      <div class="flabel" role="group" aria-label="Story Points">SP<div class="sptog" id="fSp"></div></div>
+    </div>
+    <div class="group" id="group" aria-live="polite"></div>
+    <span class="tip">Сервис можно добавить и кликом по столбцу в «Самых затрагиваемых сервисах» или по клетке тепловой карты.</span>
+  </div>
+
+  <section class="kpis" id="kpis" aria-label="Ключевые показатели"></section>
+  <ul class="insights" id="insights"></ul>
+
+  <div class="grid">
+    <div class="card wide" id="cardStages"><h2>Где задачи проводят время</h2><p class="hint">Среднее число дней на каждой стадии у завершённых задач, всего и по числу затронутых сервисов. Средние складываются в полное время в системе, медианы — в подсказке.</p><div class="chart" id="chStages"></div></div>
+    <div class="card"><h2>Распределение · <span class="m"></span></h2><p class="hint" id="histHint"></p><div class="chart" id="chHist"></div></div>
+    <div class="card"><h2>Динамика · <span class="m"></span></h2><p class="hint" id="ctrlHint"></p><div class="chart" id="chControl"></div></div>
+    <div class="card wide"><div class="chead"><h2>Тренд · <span class="m"></span></h2><label for="fTrendBy">Шаг <select id="fTrendBy"><option value="month">месяц</option><option value="quarter">квартал</option></select></label></div><p class="hint" id="trendHint"></p><div class="chart" id="chTrend"></div></div>
+    <div class="card"><h2>SP · <span class="m"></span></h2><p class="hint" id="spHint"></p><div class="chart" id="chSp"></div></div>
+    <div class="card"><h2>Число сервисов · <span class="m"></span></h2><p class="hint">Медиана и P85 выбранной метрики в зависимости от того, сколько сервисов затронула задача.</p><div class="chart" id="chNSvc"></div></div>
+    <div class="card"><h2>Самые затрагиваемые сервисы</h2><p class="hint">Число задач, затронувших сервис, и медиана выбранной метрики. Клик добавляет сервис в группу.</p><div class="chart tall" id="chSvc"></div></div>
+    <div class="card"><h2>Какие сервисы меняются вместе</h2><p class="hint">Вне диагонали — число задач, затронувших оба сервиса; яркие блоки — фактические домены. На диагонали (своя шкала) — задачи, сделанные только в этом сервисе. Клик добавляет сервисы в группу.</p><div class="chart tall" id="chHeat"></div></div>
+    <div class="card wide" id="cardTeamSvc"><h2>Какие команды трогают какие сервисы</h2><p class="hint">Число задач команды, затронувших сервис. Если у сервиса в столбце много разных команд, экспертиза по нему размазана. Подписи под столбцами — сколько команд трогали сервис.</p><div class="chart tall" id="chTeamSvc"></div></div>
+    <div class="card" id="cardTeam"><h2>Команды · <span class="m"></span></h2><p class="hint">Медиана и P85 выбранной метрики по командам, в скобках — число завершённых задач.</p><div class="chart tall" id="chTeam"></div></div>
+    <div class="card" id="cardSpread"><h2>Сколько команд на сервис<span class="tip" tabindex="0" data-tip="Фактический владелец по данным, а не по документам: команда эпика, у которой больше всего эпиков с этим сервисом. Владелец явный, если её доля минимум вдвое больше доли второй команды (или команда одна). Показаны сервисы с 3+ эпиками, сначала без явного владельца.">i</span></h2><p class="hint">Для каждого сервиса: доли эпиков основной и второй команды. Явный владелец — основная команда делает минимум вдвое больше второй.</p><div class="tbl" id="tSpread"></div></div>
+    <div class="card wide"><h2>Накопительная диаграмма потока (CFD)</h2><p class="hint">Сколько задач находится на каждой стадии в каждый день. Ширина полосы по вертикали — WIP стадии, по горизонтали — примерное время в ней. Расширяющаяся полоса означает, что стадия копит очередь.</p><div class="chart" id="chCfd"></div></div>
+    <div class="card wide"><h2>Пропускная способность и WIP · <span class="m"></span></h2><p class="hint" id="flowHint"></p><div class="chart" id="chFlow"></div></div>
+    <div class="card"><h2>Частые комбинации сервисов</h2><p class="hint">Пары и тройки сервисов, которые чаще всего затрагиваются в одной задаче, и медиана выбранной метрики.</p><div class="tbl" id="tCombos"></div></div>
+    <div class="card"><h2>Задачи в работе</h2><p class="hint" id="agingHint"></p><div class="tbl" id="tAging"></div></div>
+  </div>
+
+  <footer>Длительность метрики = дата конца − дата начала + 1, в календарных днях. Стадии на диаграмме «Где задачи проводят время» считаются как разница дат без +1, чтобы складываться в целое. Возраст открытых задач считается на дату последнего события в данных. Перцентили — по методу ближайшего ранга.</footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+<script>
+const $ = s => document.querySelector(s);
+const DAY = 86400000;
+const STAGES = ['created', 'ready', 'to_dev', 'in_refinement', 'in_dev', 'ready_to_deploy', 'done'];
+const SL = { created: 'создание', ready: 'READY', in_refinement: 'REFINEMENT', to_dev: 'TO_DEV', in_dev: 'IN_DEV', ready_to_deploy: 'READY_TO_DEPLOY', done: 'RELEASED' };
+// известные интервалы: если выбранная пара совпадает, показываем название метрики
+const METRICS = [
+  { id: 'lead', from: 'to_dev', to: 'done', name: 'Lead time', note: 'от точки обязательства до поставки' },
+  { id: 'system', from: 'created', to: 'done', name: 'Время в системе', note: 'то, что видит заказчик, включая бэклог' },
+  { id: 'cycle', from: 'in_dev', to: 'done', name: 'Cycle time', note: 'от IN_DEV до поставки' },
+  // эпики без проработки стартуют с IN_DEV, поэтому не выпадают из метрики
+  { id: 'cycle_ref', from: 'in_refinement', to: 'done', name: 'Cycle time', note: 'от REFINEMENT до поставки; без проработки — от IN_DEV', fallback: true },
+  { id: 'dev', from: 'in_dev', to: 'ready_to_deploy', name: 'Разработка' },
+  { id: 'release', from: 'ready_to_deploy', to: 'done', name: 'Ожидание релиза' },
+  { id: 'queue', from: 'to_dev', to: 'in_dev', name: 'До начала разработки', note: 'ожидание и проработка после обязательства' },
+  { id: 'wait_ref', from: 'to_dev', to: 'in_refinement', name: 'Ожидание проработки', note: 'от TO_DEV до начала проработки' },
+  { id: 'refine', from: 'in_refinement', to: 'in_dev', name: 'Проработка' },
+  { id: 'backlog', from: 'created', to: 'to_dev', name: 'Бэклог', note: 'до точки обязательства' },
+  { id: 'to_ready', from: 'created', to: 'ready', name: 'Бэклог до READY' },
+  { id: 'ready_wait', from: 'ready', to: 'to_dev', name: 'От READY до TO_DEV' }
+];
+const SEGNAME = { 'created>ready': 'Бэклог до READY', 'ready>to_dev': 'READY → TO_DEV', 'created>to_dev': 'Бэклог', 'to_dev>in_refinement': 'Ожидание после TO_DEV', 'in_refinement>in_dev': 'Проработка', 'to_dev>in_dev': 'До начала разработки', 'in_dev>ready_to_deploy': 'Разработка', 'ready_to_deploy>done': 'Ожидание релиза' };
+let ALL = [], HAS = new Set(), SVCS = [], TEAMS = [], REF = 0, HEAT_NAMES = [];
+const GROUP = new Set();
+const SPSEL = new Set(); // выбранные значения SP ('none' — без оценки); пусто = все
+let SPVALS = [];
+function renderSp() {
+  $('#fSp').innerHTML = SPVALS.map(v => `<button type="button" data-sp="${v}" aria-pressed="${SPSEL.has(v)}">${v === 'none' ? 'без SP' : v}</button>`).join('');
+}
+const charts = {};
+
+/* ---------- утилиты ---------- */
+const iso = d => new Date(d * DAY).toISOString().slice(0, 10);
+const fmtDate = d => { const s = iso(d); return s.slice(8, 10) + '.' + s.slice(5, 7) + '.' + s.slice(0, 4); };
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const fmt = (v, d = 1) => v == null || isNaN(v) ? '—' : (Math.round(v * 10 ** d) / 10 ** d).toLocaleString('ru-RU');
+const tip = s => `<span class="tip" tabindex="0" role="button" aria-label="Как считается" data-tip="${esc(s)}">i</span>`;
+const mean = a => a.length ? a.reduce((x, y) => x + y, 0) / a.length : null;
+function pct(arr, p) {
+  if (!arr.length) return null;
+  const s = [...arr].sort((a, b) => a - b);
+  return s[Math.max(0, Math.ceil(p * s.length) - 1)];
+}
+function ranks(a) {
+  const idx = a.map((v, i) => [v, i]).sort((x, y) => x[0] - y[0]);
+  const r = new Array(a.length);
+  for (let i = 0; i < idx.length;) {
+    let j = i; while (j + 1 < idx.length && idx[j + 1][0] === idx[i][0]) j++;
+    const avg = (i + j) / 2 + 1; for (let k = i; k <= j; k++) r[idx[k][1]] = avg; i = j + 1;
+  }
+  return r;
+}
+function pearson(x, y) {
+  const n = x.length; if (n < 5) return null;
+  const mx = mean(x), my = mean(y);
+  let sxy = 0, sxx = 0, syy = 0;
+  for (let i = 0; i < n; i++) { const dx = x[i] - mx, dy = y[i] - my; sxy += dx * dy; sxx += dx * dx; syy += dy * dy; }
+  return sxx && syy ? sxy / Math.sqrt(sxx * syy) : null;
+}
+const spearman = (x, y) => pearson(ranks(x), ranks(y));
+const weekOf = d => d - ((d + 3) % 7); // понедельник недели (день 0 = четверг 01.01.1970)
+// дата прохождения стадии: если сама дата пуста, берём ближайшую более позднюю известную
+function eff(t, k) {
+  let best = null;
+  for (let j = STAGES.indexOf(k); j < STAGES.length; j++) { const v = t.d[STAGES[j]]; if (v != null && (best == null || v < best)) best = v; }
+  return best;
+}
+
+// стадии, которые эпик может законно пропустить (не путать с непроставленной датой)
+const OPTIONAL = new Set(['in_refinement']);
+const skipped = (t, k) => OPTIONAL.has(k) && t.d[k] == null && STAGES.slice(STAGES.indexOf(k) + 1).some(s => t.d[s] != null);
+// значение метрики для эпика; если эпик пропустил стадию на границе метрики, он в ней не участвует
+function metricOf(t, M) {
+  if ((!M.fallback && skipped(t, M.from)) || skipped(t, M.to)) return { start: null, end: null, lt: null, skip: true };
+  const s = eff(t, M.from), e = eff(t, M.to);
+  return { start: s, end: e, lt: s != null && e != null && e >= s ? e - s + 1 : null, skip: false };
+}
+
+/* ---------- демо-данные ---------- */
+function mulberry32(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function demoCSV() {
+  const r = mulberry32(42);
+  const norm = () => { let u = 0; while (!u) u = r(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * r()); };
+  const logn = (med, s) => Math.exp(Math.log(med) + s * norm());
+  const domains = {
+    PAY: ['payment-gw', 'billing', 'ledger', 'antifraud'],
+    CAT: ['catalog', 'search', 'pricing', 'media'],
+    USR: ['auth', 'profile', 'notifications'],
+    ORD: ['orders', 'cart', 'delivery', 'warehouse']
+  };
+  const keys = Object.keys(domains), all = Object.values(domains).flat();
+  const sps = [1, 2, 2, 3, 3, 3, 5, 5, 5, 8, 8, 13];
+  const start0 = Date.UTC(2026, 0, 5) / DAY, span = 268, ref = start0 + span;
+  const cnt = { PAY: 100, CAT: 200, USR: 300, ORD: 400 };
+  const lines = ['URL эпика;Story Points;Дата создания;Ready;Refinement;To Dev;In Dev;Ready to Deploy;Released;Репозитории;Команда (key);Команда (название)'];
+  const TEAMS_D = { PAY: ['PAY', 'Платежи'], CAT: ['CAT', 'Каталог'], USR: ['ACC', 'Аккаунты'], ORD: ['ORD', 'Заказы'] };
+  const OTHER = [['PLT', 'Платформа'], ['MOB', 'Мобайл'], ...Object.values(TEAMS_D)];
+  for (let i = 0; i < 260; i++) {
+    const k = keys[Math.floor(r() * keys.length)], d = domains[k];
+    const n = 1 + Math.floor(r() * r() * 3.2);
+    const set = new Set();
+    while (set.size < Math.min(n, d.length)) set.add(d[Math.floor(r() * d.length)]);
+    if (r() < 0.25) set.add(all[Math.floor(r() * all.length)]);
+    if (r() < 0.18) set.add('api-gateway');
+    if (r() < 0.07) set.add('admin');
+    const sp = sps[Math.floor(r() * sps.length)];
+    const created = start0 + Math.floor(r() * span);
+    const ready = created + Math.round(logn(2, 0.9));
+    const toDev = ready + Math.round(logn(1.5, 0.9));
+    const inRef = toDev + Math.max(0, Math.round(logn(1.4, 0.9)) - 1);
+    const inDev = inRef + Math.max(1, Math.round(logn(2, 0.7) * (set.size > 2 ? 1.6 : 1)));
+    const rtd = inDev + Math.max(1, Math.round(logn(1.8 + sp * 0.12, 0.6) * Math.exp(0.4 * (set.size - 1))));
+    let done = rtd + ((4 - (rtd + 4) % 7 + 7) % 7); // релизы по четвергам
+    if (r() < 0.3) done += 7; // пропустили релизное окно
+    // задачу чаще делает «своя» команда домена, но заметная доля уходит случайной
+    const team = r() < 0.6 ? TEAMS_D[k] : OTHER[Math.floor(r() * OTHER.length)];
+    const dates = [created, ready, inRef, toDev, inDev, rtd, done].map(x => x > ref ? null : x);
+    if (dates[4] != null && dates[4] < ref - 20 && r() < 0.04) { dates[5] = null; dates[6] = null; } // застряла
+    if (r() < 0.2) dates[2] = null; // мелочь без проработки
+    if (r() < 0.05) dates[3] = null; // TO_DEV не проставили
+    lines.push([`https://jira.example.com/browse/${k}-${++cnt[k]}`, sp, ...dates.map(x => x == null ? '' : iso(x)), r() < 0.08 ? '' : [...set].join(', '), ...team].join(';')); // часть эпиков без кода
+  }
+  return lines.join('\n');
+}
+
+/* ---------- разбор CSV ---------- */
+function parseDate(s) {
+  s = (s || '').trim(); if (!s) return null;
+  let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/); if (m) return Date.UTC(+m[1], m[2] - 1, +m[3]) / DAY;
+  m = s.match(/^(\d{1,2})[.\/](\d{1,2})[.\/](\d{4})/); if (m) return Date.UTC(+m[3], m[2] - 1, +m[1]) / DAY;
+  m = s.match(/^(\d{1,2})[\/ -]([A-Za-zА-Яа-я]{3})[a-zа-я]*\.?[\/ -](\d{2,4})/); // Jira: 01/Oct/26
+  if (m) {
+    const mi = MONTHS.findIndex(x => x.includes(m[2].toLowerCase()));
+    if (mi >= 0) { const y = +m[3] < 100 ? 2000 + +m[3] : +m[3]; return Date.UTC(y, mi, +m[1]) / DAY; }
+  }
+  return NaN;
+}
+const MONTHS = [['jan', 'янв'], ['feb', 'фев'], ['mar', 'мар'], ['apr', 'апр'], ['may', 'май', 'мая'], ['jun', 'июн'], ['jul', 'июл'], ['aug', 'авг'], ['sep', 'сен'], ['oct', 'окт'], ['nov', 'ноя'], ['dec', 'дек']];
+// заголовки сравниваются без регистра, пробелы/подчёркивания/дефисы считаются одним пробелом
+const norm = s => String(s).toLowerCase().replace(/[\s_\-]+/g, ' ').trim();
+const ALIAS = {
+  task: ['task', 'id', 'key', 'задача', 'url эпика', 'эпик', 'epic'], sp: ['sp', 'story points', 'storypoints', 'points'],
+  created: ['created', 'created at', 'start', 'создана', 'дата создания'], ready: ['ready'],
+  in_refinement: ['in refinement', 'refinement', 'in analysis'], to_dev: ['to dev'], in_dev: ['in dev'],
+  ready_to_deploy: ['ready to deploy', 'rtd'], done: ['done', 'released', 'released done', 'end', 'resolved'],
+  services: ['services', 'service', 'сервисы', 'репозитории', 'repos', 'repositories'],
+  team_key: ['команда (key)', 'team key'], team: ['команда (название)', 'команда', 'team']
+};
+function fail(msg) { const e = $('#err'); e.textContent = msg; e.hidden = false; }
+function load(text, label) {
+  let rows = Papa.parse(text.replace(/^﻿/, '').trim(), { skipEmptyLines: 'greedy' }).data;
+  if (!rows.length) return fail('Файл пустой.');
+  let map;
+  if (isNaN(parseFloat(String(rows[0][1] ?? '').replace(',', '.')))) {
+    const h = rows[0].map(norm);
+    map = {};
+    for (const [k, al] of Object.entries(ALIAS)) { const i = h.findIndex(x => al.map(norm).includes(x)); if (i >= 0) map[k] = i; }
+    rows = rows.slice(1);
+    if (map.task == null || map.services == null || !STAGES.some(k => map[k] != null))
+      return fail('Не нашёл нужные колонки в заголовке. Нужны как минимум «URL эпика», «Репозитории» и хотя бы одна дата («Дата создания», «Ready», «Refinement», «To Dev», «In Dev», «Ready to Deploy», «Released»). Найдено: ' + h.join(' | '));
+  } else {
+    const n = rows[0].length;
+    map = n >= 9 ? { task: 0, sp: 1, created: 2, in_refinement: 3, to_dev: 4, in_dev: 5, ready_to_deploy: 6, done: 7, services: 8 }
+      : n >= 8 ? { task: 0, sp: 1, created: 2, to_dev: 3, in_dev: 4, ready_to_deploy: 5, done: 6, services: 7 }
+      : { task: 0, sp: 1, created: 2, done: 3, services: 4 };
+  }
+  const lastCol = Math.max(...Object.values(map));
+  const tasks = []; let bad = 0;
+  for (const c of rows) {
+    if (c.length <= Math.min(lastCol, map.services)) { bad++; continue; }
+    const d = {}; let ok = true;
+    for (const k of STAGES) { const v = map[k] != null ? parseDate(c[map[k]]) : null; if (Number.isNaN(v)) ok = false; d[k] = v; }
+    if (!ok || STAGES.every(k => d[k] == null)) { bad++; continue; }
+    const sp = map.sp != null ? parseFloat(String(c[map.sp]).replace(',', '.')) : NaN;
+    const raw = map.services === lastCol ? c.slice(map.services).join(',') : String(c[map.services] ?? '');
+    const services = [...new Set(raw.split(/[,|]/).map(x => x.trim().toLowerCase()).filter(Boolean))].sort();
+    const id = String(c[map.task]).trim();
+    const team = String((map.team != null ? c[map.team] : '') || (map.team_key != null ? c[map.team_key] : '') || '').trim() || 'без команды';
+    tasks.push({ task: /^https?:\/\//.test(id) ? id.replace(/[?#].*$/, '').replace(/\/+$/, '').split('/').pop() : id, url: /^https?:\/\//.test(id) ? id : null,
+      sp: isNaN(sp) ? null : sp, d, key: d.created ?? STAGES.map(k => d[k]).find(v => v != null), services, team });
+  }
+  if (!tasks.length) return fail('В файле не нашлось ни одной корректной строки. Проверьте заголовок и формат дат.');
+  const e = $('#err'); e.hidden = !bad; e.textContent = bad ? `Пропущено строк: ${bad} (нет ни одной даты, дата в неизвестном формате или не хватает колонок).` : '';
+  ALL = tasks;
+  HAS = new Set(STAGES.filter(k => tasks.some(t => t.d[k] != null)));
+  REF = Math.max(...tasks.flatMap(t => STAGES.map(k => t.d[k] ?? -Infinity)));
+  SVCS = [...new Set(tasks.flatMap(t => t.services))].sort();
+  $('#source').innerHTML = `${label} · <b class="num">${tasks.length}</b> задач`;
+  $('#svcList').innerHTML = SVCS.map(s => `<option value="${esc(s)}"></option>`).join('');
+  [...GROUP].forEach(s => { if (!SVCS.includes(s)) GROUP.delete(s); });
+  TEAMS = [...new Set(tasks.map(t => t.team))].sort((a, b) => a.localeCompare(b, 'ru'));
+  const pTeam = $('#fTeam').value;
+  $('#fTeam').innerHTML = '<option value="">Все команды</option>' + TEAMS.map(s => `<option value="${esc(s)}">${esc(s)}</option>`).join('');
+  $('#fTeam').value = TEAMS.includes(pTeam) ? pTeam : '';
+  $('#fTeam').disabled = TEAMS.length < 2;
+  $('#fRefWrap').hidden = !HAS.has('in_refinement');
+  if (!HAS.has('in_refinement')) $('#fRef').value = '';
+  SPVALS = [...new Set(tasks.filter(t => t.sp != null).map(t => t.sp))].sort((a, b) => a - b).map(String);
+  if (tasks.some(t => t.sp == null)) SPVALS.push('none');
+  [...SPSEL].forEach(v => { if (!SPVALS.includes(v)) SPSEL.delete(v); });
+  renderSp();
+  const st = STAGES.filter(k => HAS.has(k));
+  const pf = $('#fFromSt').value, pt = $('#fToSt').value;
+  $('#fFromSt').innerHTML = st.slice(0, -1).map(k => `<option value="${k}">${SL[k]}</option>`).join('');
+  $('#fToSt').innerHTML = st.slice(1).map(k => `<option value="${k}">${SL[k]}</option>`).join('');
+  const def = HAS.has('to_dev') && HAS.has('done') ? ['to_dev', 'done'] : [st[0], st[st.length - 1]];
+  $('#fFromSt').value = st.includes(pf) && pf !== st[st.length - 1] ? pf : def[0];
+  $('#fToSt').value = st.includes(pt) && pt !== st[0] ? pt : def[1];
+  fixPair('from');
+  $('#fFrom').value = ''; $('#fTo').value = '';
+  // статус для фильтра по дате: по умолчанию выпуск
+  const pd = $('#fDateSt').value;
+  $('#fDateSt').innerHTML = st.map(k => `<option value="${k}">${SL[k]}</option>`).join('');
+  $('#fDateSt').value = st.includes(pd) ? pd : (HAS.has('done') ? 'done' : st[0]);
+  // кварталы и годы, в которые есть хоть одна дата
+  const allDays = tasks.flatMap(t => STAGES.map(k => t.d[k]).filter(v => v != null));
+  const d0 = new Date(Math.min(...allDays) * DAY), d1 = new Date(REF * DAY);
+  const opts = [];
+  for (let y = d1.getUTCFullYear(); y >= d0.getUTCFullYear(); y--) {
+    for (let q = 3; q >= 0; q--) {
+      const a = Date.UTC(y, q * 3, 1) / DAY, b = Date.UTC(y, q * 3 + 3, 0) / DAY;
+      if (b >= Math.min(...allDays) && a <= REF) opts.push(`<option value="${iso(a)}|${iso(b)}">Q${q + 1} ${y}</option>`);
+    }
+    opts.push(`<option value="${y}-01-01|${y}-12-31">${y} год</option>`);
+  }
+  $('#fQ').innerHTML = '<option value="">Любой</option>' + opts.join('');
+  render();
+}
+
+/* ---------- выбор интервала ---------- */
+// «до» всегда позже «от»: недоступные варианты гасим, при конфликте сдвигаем второй список
+function fixPair(changed) {
+  const f = $('#fFromSt'), t = $('#fToSt'), fi = STAGES.indexOf(f.value);
+  [...t.options].forEach(o => { o.disabled = STAGES.indexOf(o.value) <= fi; });
+  if (STAGES.indexOf(t.value) <= fi) {
+    if (changed === 'from') t.value = [...t.options].find(o => !o.disabled)?.value ?? t.value;
+  }
+  const ti = STAGES.indexOf(t.value);
+  [...f.options].forEach(o => { o.disabled = STAGES.indexOf(o.value) >= ti; });
+}
+function currentMetric() {
+  const from = $('#fFromSt').value, to = $('#fToSt').value;
+  const known = METRICS.find(m => m.from === from && m.to === to);
+  return known ? { ...known, known: true } : { id: 'custom', from, to, name: `${SL[from]} → ${SL[to]}`, known: false };
+}
+
+/* ---------- группа сервисов ---------- */
+function renderGroup() {
+  const g = $('#group');
+  g.innerHTML = GROUP.size
+    ? [...GROUP].map(s => `<span class="gchip">${esc(s)}<button type="button" data-rm="${esc(s)}" aria-label="Убрать ${esc(s)}">×</button></span>`).join('')
+    : '<span class="all">Все сервисы. Добавьте один или несколько, чтобы сузить выборку.</span>';
+  $('#fMode').disabled = !GROUP.size; $('#btnAll').disabled = !GROUP.size;
+}
+function addSvc(s) { if (s && SVCS.includes(s) && !GROUP.has(s)) { GROUP.add(s); render(); } }
+
+/* ---------- тема для графиков ---------- */
+let T = {};
+function readTheme() {
+  const cs = getComputedStyle(document.documentElement);
+  for (const k of ['bg', 'surface', 'fg', 'muted', 'line', 'grid', 'accent', 'c2', 'c3', 'c4', 'c5', 'c6', 'heat0']) T[k] = cs.getPropertyValue('--' + k).trim();
+  T.font = cs.getPropertyValue('--f-body').trim();
+}
+const ax = (type, extra = {}) => Object.assign({
+  type, axisLine: { lineStyle: { color: T.line } }, axisTick: { lineStyle: { color: T.line } },
+  splitLine: { lineStyle: { color: T.grid } }, axisLabel: { color: T.muted }, nameTextStyle: { color: T.muted }
+}, extra);
+const tt = extra => Object.assign({ backgroundColor: T.surface, borderColor: T.line, textStyle: { color: T.fg } }, extra);
+const legend = () => ({ top: 0, right: 0, textStyle: { color: T.muted }, itemWidth: 10, itemHeight: 10 });
+function draw(id, opt, onClick) {
+  let c = charts[id];
+  if (!c) { c = echarts.init(document.getElementById(id)); charts[id] = c; if (onClick) c.on('click', onClick); }
+  c.setOption(Object.assign({
+    backgroundColor: 'transparent', animationDuration: 400,
+    textStyle: { color: T.muted, fontFamily: T.font },
+    grid: { left: 8, right: 16, top: 30, bottom: 8, containLabel: true },
+    tooltip: tt()
+  }, opt), true);
+}
+const pLine = (val, name, color) => ({ yAxis: val, name, lineStyle: { color, type: 'dashed' }, label: { formatter: `${name} ${val}д`, color, position: 'insideEndTop' } });
+function color2(c) { return { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: c + '55' }, { offset: 1, color: c + '11' }] }; }
+
+/* ---------- расчёт и отрисовка ---------- */
+const isInside = s => s.length > 0 && s.every(x => GROUP.has(x));
+const isCross = s => s.some(x => GROUP.has(x)) && s.some(x => !GROUP.has(x));
+function filtered(ignoreGroup = false) {
+  const mode = $('#fMode').value, from = parseDate($('#fFrom').value), to = parseDate($('#fTo').value), g = [...GROUP], team = $('#fTeam').value;
+  return ALL.filter(t => {
+    const s = t.services;
+    if (team && t.team !== team) return false;
+    const hs = $('#fHasSvc').value;
+    if (hs && (hs === 'yes') !== (s.length > 0)) return false;
+    const rf = $('#fRef').value;
+    if (rf && HAS.has('in_refinement') && (rf === 'yes') !== (t.d.in_refinement != null)) return false;
+    if (SPSEL.size && !SPSEL.has(t.sp == null ? 'none' : String(t.sp))) return false;
+    if (g.length && !ignoreGroup) {
+      if (mode === 'any' && !g.some(x => s.includes(x))) return false;
+      if (mode === 'all' && !g.every(x => s.includes(x))) return false;
+      if (mode === 'only' && !isInside(s)) return false;
+      if (mode === 'cross' && !isCross(s)) return false;
+    }
+    if (from == null && to == null) return true;
+    const v = eff(t, $('#fDateSt').value || 'created'); // задача без перехода в статус в период не попадает
+    return v != null && (from == null || v >= from) && (to == null || v <= to);
+  });
+}
+
+function render() {
+  readTheme(); renderGroup();
+  const M = currentMetric();
+  document.querySelectorAll('.m').forEach(e => { e.textContent = M.name; });
+  const span = `${SL[M.from]} → ${SL[M.to]}`;
+  const badge = $('#mBadge');
+  badge.className = 'mbadge' + (M.known ? '' : ' custom');
+  badge.innerHTML = M.known ? `<b>${M.name}</b><small>${M.note || span}</small>` : `<b>Произвольный интервал</b><small>${span}</small>`;
+  const sel = filtered();
+  const tasks = sel.map(t => ({ ...t, ...metricOf(t, M) }));
+  const nSkip = tasks.filter(t => t.skip).length;
+  const inM = tasks.filter(t => t.start != null);
+  const done = inM.filter(t => t.lt != null), open = inM.filter(t => t.end == null);
+  const notStarted = tasks.length - inM.length - nSkip;
+  const lts = done.map(t => t.lt);
+  const p50 = pct(lts, .5), p85 = pct(lts, .85), p95 = pct(lts, .95);
+  $('#fCount').textContent = `в выборке ${sel.length} из ${ALL.length}` + (nSkip ? ` · ${nSkip} без ${SL.in_refinement} не участвуют в метрике` : '');
+
+  // недели и throughput
+  const weeks = new Map();
+  // если период задан по статусу конца метрики, все завершения лежат внутри периода:
+  // тогда throughput делим на недели периода; для когорт (другой статус) — на весь отрезок
+  const sync = $('#fDateSt').value === M.to;
+  const pFrom = sync ? parseDate($('#fFrom').value) : null, pTo = sync ? parseDate($('#fTo').value) : null;
+  if (inM.length) {
+    const w0 = pFrom ?? Math.min(...inM.map(t => t.start)), w1 = Math.min(pTo ?? REF, REF);
+    for (let w = weekOf(w0); w <= weekOf(w1); w += 7) weeks.set(w, 0);
+  }
+  done.forEach(t => { const w = weekOf(t.end); weeks.set(w, (weeks.get(w) || 0) + 1); });
+  const thrAvg = weeks.size ? done.length / weeks.size : null;
+  const avgSvc = sel.length ? mean(sel.map(t => t.services.length)) : null;
+
+  $('#kpis').innerHTML = [
+    ['Задач · готово / в работе / не начаты', `${sel.length}<small> · ${done.length} / ${open.length} / ${notStarted}</small>`],
+    [`Медиана · ${M.name}`, p50 == null ? '—' : `${p50}<small> дн.</small>`],
+    [M.id === 'lead' ? 'P85 · SLE' : 'P85', p85 == null ? '—' : `${p85}<small> дн.</small>`, 'key'],
+    ['P95', p95 == null ? '—' : `${p95}<small> дн.</small>`],
+    [`Throughput · до ${SL[M.to]}`, `${fmt(thrAvg)}<small> задач/нед.</small>`],
+    ['Сервисов на задачу', `${fmt(avgSvc)}<small> в среднем</small>`]
+  ].map(([l, v, c]) => `<div class="kpi ${c || ''}"><span class="l">${l}</span><span class="v">${v}</span></div>`).join('');
+
+  // SP ↔ метрика
+  const spDone = done.filter(t => t.sp != null);
+  const rho = spearman(spDone.map(t => t.sp), spDone.map(t => t.lt));
+  const strength = r => Math.abs(r) < .3 ? 'слабая' : Math.abs(r) < .6 ? 'умеренная' : 'сильная';
+
+  // число сервисов
+  const nb = n => n >= 4 ? '4+' : String(n);
+  const byN = {}; done.forEach(t => (byN[nb(t.services.length)] ??= []).push(t.lt));
+  const nKeys = ['0', '1', '2', '3', '4+'].filter(k => byN[k]);
+  const nLabel = k => k === '0' ? 'нет' : k;
+
+  // комбинации
+  const combos = new Map();
+  tasks.forEach(t => {
+    const s = t.services; if (s.length < 2 || s.length > 8) return;
+    const add = key => { const o = combos.get(key) || { n: 0, lts: [] }; o.n++; if (t.lt != null) o.lts.push(t.lt); combos.set(key, o); };
+    for (let i = 0; i < s.length; i++) for (let j = i + 1; j < s.length; j++) {
+      add(s[i] + ' + ' + s[j]);
+      for (let k = j + 1; k < s.length; k++) add(s[i] + ' + ' + s[j] + ' + ' + s[k]);
+    }
+  });
+  const topCombos = [...combos].filter(([, o]) => o.n >= 2).sort((a, b) => b[1].n - a[1].n || b[0].split('+').length - a[0].split('+').length).slice(0, 12);
+  const topPair = [...combos].filter(([k]) => k.split('+').length === 2).sort((a, b) => b[1].n - a[1].n)[0];
+
+  // стадии
+  const SEGCOL = { created: T.c4, ready: T.c6, in_refinement: T.c5, to_dev: T.c2, in_dev: T.accent, ready_to_deploy: T.c3 };
+  const stH = STAGES.filter(k => HAS.has(k));
+  const SEG = stH.slice(0, -1).map((a, i) => { const b = stH[i + 1]; return [SEGNAME[a + '>' + b] || `${SL[a]} → ${SL[b]}`, a, b, SEGCOL[a]]; });
+  const complete = sel.filter(t => SEG.length && SEG.every(([, a, b]) => eff(t, a) != null && eff(t, b) != null));
+  const segOf = (t, a, b) => Math.max(0, eff(t, b) - eff(t, a));
+  const segMeans = SEG.map(([, a, b]) => mean(complete.map(t => segOf(t, a, b))));
+  const segTotal = segMeans.reduce((x, y) => x + (y || 0), 0);
+
+  // выводы
+  const ins = [];
+  if (p85 != null) ins.push(M.id === 'lead'
+    ? `<b>SLE:</b> 85% задач проходят путь ${span} за <b class="num">${p85}</b> дн. или быстрее (по ${done.length} завершённым). Это можно обещать вместо оценок.`
+    : `<b>${M.name}:</b> у 85% задач путь ${span} занимает <b class="num">${p85}</b> дн. или меньше (по ${done.length} задачам).`);
+  if (complete.length >= 5 && segTotal > 0) {
+    const iMax = segMeans.indexOf(Math.max(...segMeans));
+    ins.push(`<b>Больше всего времени</b> задачи проводят в стадии «${SEG[iMax][0]}»: в среднем <span class="num">${fmt(segMeans[iMax])}</span> дн. из <span class="num">${fmt(segTotal)}</span> (<span class="num">${fmt(segMeans[iMax] / segTotal * 100, 0)}%</span>).`);
+    const iDev = SEG.findIndex(s => s[1] === 'in_dev' && s[2] === 'ready_to_deploy');
+    const committed = SEG.map((s, i) => STAGES.indexOf(s[1]) < STAGES.indexOf('to_dev') ? 0 : segMeans[i]).reduce((x, y) => x + y, 0);
+    if (iDev >= 0 && committed > 0) ins.push(`<b>Активная разработка</b> занимает около <span class="num">${fmt(segMeans[iDev] / committed * 100, 0)}%</span> времени от TO_DEV до RELEASED, остальное — ожидание${HAS.has('in_refinement') ? ' и проработка' : ''}. Это верхняя граница flow efficiency: внутри IN_DEV тоже есть ожидание.`);
+  }
+  if (HAS.has('in_refinement') && !$('#fRef').value && M.from !== 'in_refinement' && M.to !== 'in_refinement') {
+    const withR = done.filter(t => t.d.in_refinement != null).map(t => t.lt), noR = done.filter(t => t.d.in_refinement == null).map(t => t.lt);
+    if (withR.length && noR.length) ins.push(`<b>Без проработки</b> прошли <span class="num">${noR.length}</span> из <span class="num">${done.length}</span> эпиков (<span class="num">${fmt(noR.length / done.length * 100, 0)}%</span>): медиана <span class="num">${pct(noR, .5)}</span> дн., P85 <span class="num">${pct(noR, .85)}</span>. С проработкой — медиана <span class="num">${pct(withR, .5)}</span> дн., P85 <span class="num">${pct(withR, .85)}</span>. Сравнивайте при одинаковых SP: без проработки обычно берут мелкие эпики.`);
+  }
+  if (!$('#fHasSvc').value) {
+    const noS = done.filter(t => !t.services.length).map(t => t.lt), withS = done.filter(t => t.services.length).map(t => t.lt);
+    if (noS.length && withS.length) ins.push(`<b>Без сервисов</b> (аналитика, отказ и т. п.): <span class="num">${noS.length}</span> из <span class="num">${done.length}</span> эпиков (<span class="num">${fmt(noS.length / done.length * 100, 0)}%</span>), медиана <span class="num">${pct(noS, .5)}</span> дн. против <span class="num">${pct(withS, .5)}</span> у эпиков с кодом.${pct(withS, .85) !== p85 ? ` P85 без них — <span class="num">${pct(withS, .85)}</span> дн. вместо <span class="num">${p85}</span>.` : ' На P85 они сейчас не влияют.'} Если это не поставка ценности, исключите их фильтром «Сервисы в эпике: есть».`);
+  }
+  if (rho != null) ins.push(`<b>SP и сроки:</b> ранговая корреляция <span class="num">r = ${fmt(rho, 2)}</span>, связь ${strength(rho)}. ${Math.abs(rho) < .3 ? 'Оценка в SP почти не говорит, сколько задача будет идти.' : Math.abs(rho) < .6 ? 'SP дают ориентир, но разброс внутри каждого значения большой.' : 'SP неплохо предсказывают длительность.'}`);
+  if (byN['1'] && (byN['3'] || byN['4+'])) {
+    const m1 = pct(byN['1'], .5), m3 = pct([...(byN['3'] || []), ...(byN['4+'] || [])], .5);
+    ins.push(`<b>Связанность:</b> задача в одном сервисе — медиана <span class="num">${m1}</span> дн., в трёх и более — <span class="num">${m3}</span> дн.${m1 ? ` (в <span class="num">${fmt(m3 / m1)}</span> раза дольше)` : ''}.`);
+  }
+  if (topPair) ins.push(`<b>Чаще всего вместе меняются</b> ${esc(topPair[0])}: <span class="num">${topPair[1].n}</span> задач. Это кандидат в общий домен одной команды.`);
+  const oldOpen = p85 == null ? [] : open.filter(t => REF - t.start + 1 > p85);
+  if (open.length) ins.push(`<b>В работе</b> (прошли ${SL[M.from]}, но не ${SL[M.to]}): ${open.length} задач, из них <span class="num">${oldOpen.length}</span> уже старше P85 и, скорее всего, застряли.`);
+  $('#insights').innerHTML = ins.map(s => `<li>${s}</li>`).join('') || '<li class="empty">Нет данных для выводов.</li>';
+
+  // 0. стадии
+  $('#cardStages').hidden = SEG.length < 2;
+  if (SEG.length >= 2) {
+    const rows = [['Все задачи', complete]];
+    [['Без сервисов', 0, 0], ['1 сервис', 1, 1], ['2 сервиса', 2, 2], ['3 сервиса', 3, 3], ['4+ сервиса', 4, 99]].forEach(([n, a, b]) => {
+      const g = complete.filter(t => t.services.length >= a && t.services.length <= b); if (g.length) rows.push([n, g]);
+    });
+    draw('chStages', {
+      legend: legend(),
+      grid: { left: 8, right: 24, top: 30, bottom: 8, containLabel: true },
+      tooltip: tt({ trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: ps => {
+        const g = rows[ps[0].dataIndex][1];
+        return `<b>${ps[0].name}</b><br>` + SEG.map(([n, a, b], i) => { const v = g.map(t => segOf(t, a, b)); return `<span style="color:${SEG[i][3]}">●</span> ${n}: среднее ${fmt(mean(v))} дн., медиана ${pct(v, .5)} дн.`; }).join('<br>');
+      } }),
+      xAxis: ax('value', { name: 'дней в среднем', nameLocation: 'middle', nameGap: 24 }),
+      yAxis: ax('category', { data: rows.map(([n, g]) => `${n} (n=${g.length})`), inverse: true, splitLine: { show: false } }),
+      series: SEG.map(([n, a, b, color]) => ({
+        name: n, type: 'bar', stack: 's', barWidth: '55%', itemStyle: { color },
+        data: rows.map(([, g]) => +mean(g.map(t => segOf(t, a, b))).toFixed(1)),
+        label: { show: true, color: T.surface, fontSize: 11, formatter: p => p.value >= 1.5 ? fmt(p.value) : '' }
+      }))
+    });
+  }
+
+  // 1. гистограмма
+  $('#histHint').textContent = `Сколько календарных дней занял путь ${span} у задач, которые его прошли. Линии отмечают перцентили 50, 85 и 95.`;
+  {
+    const cap = Math.max(5, Math.ceil((p95 || 5) * 1.3)), bw = Math.max(1, Math.ceil(cap / 30));
+    const cats = [], vals = [];
+    for (let x = 1; x <= cap; x += bw) { cats.push(bw === 1 ? String(x) : `${x}–${x + bw - 1}`); vals.push(lts.filter(v => v >= x && v < x + bw).length); }
+    const last = cats.length * bw; const over = lts.filter(v => v > last).length;
+    if (over) { cats.push(`>${last}`); vals.push(over); }
+    const binOf = v => Math.min(cats.length - 1, Math.floor((v - 1) / bw));
+    const marks = [[p50, 'P50', T.muted], [p85, 'P85', T.accent], [p95, 'P95', T.c3]].filter(m => m[0] != null)
+      .map(([v, n, c]) => ({ xAxis: binOf(v), lineStyle: { color: c, type: 'dashed' }, label: { formatter: `${n} ${v}д`, color: c } }));
+    draw('chHist', {
+      tooltip: tt({ trigger: 'axis', formatter: p => `${p[0].name} дн.: <b>${p[0].value}</b> задач` }),
+      xAxis: ax('category', { data: cats, name: 'дней', nameLocation: 'middle', nameGap: 26, splitLine: { show: false } }),
+      yAxis: ax('value', { minInterval: 1 }),
+      series: [{ type: 'bar', data: vals, itemStyle: { color: T.accent, opacity: .85 }, barCategoryGap: '12%', markLine: { symbol: 'none', data: marks } }]
+    });
+  }
+
+  // 2. динамика
+  $('#ctrlHint').textContent = `Каждая точка — задача, по горизонтали дата ${SL[M.to]}. Цвет показывает число затронутых сервисов.`;
+  {
+    const groups = [['без сервисов', t => t.services.length === 0, T.c4], ['1 сервис', t => t.services.length === 1, T.accent], ['2 сервиса', t => t.services.length === 2, T.c2], ['3+ сервисов', t => t.services.length >= 3, T.c3]];
+    draw('chControl', {
+      legend: legend(),
+      tooltip: tt({ trigger: 'item', formatter: p => `<b>${esc(p.data[2])}</b><br>${p.data[1]} дн. · ${SL[M.to]} ${fmtDate(p.data[0] / DAY)}<br><span style="color:${T.muted}">${esc(p.data[3])}</span>` }),
+      xAxis: ax('time', { splitLine: { show: false } }),
+      yAxis: ax('value', { name: 'дней' }),
+      series: groups.map(([name, f, color], i) => ({
+        name, type: 'scatter', symbolSize: 7, itemStyle: { color, opacity: .75 },
+        data: done.filter(f).map(t => [t.end * DAY, t.lt, t.task, t.services.join(', ')]),
+        markLine: i ? undefined : { symbol: 'none', silent: true, data: [p50 != null && pLine(p50, 'P50', T.muted), p85 != null && pLine(p85, 'P85', T.accent)].filter(Boolean) }
+      }))
+    });
+  }
+
+  // 2б. тренд по периодам окончания метрики; с группой — внутри субдомена и через его границу
+  {
+    const by = $('#fTrendBy').value;
+    const bucket = d => { const dt = new Date(d * DAY), y = dt.getUTCFullYear(), m = dt.getUTCMonth(); return by === 'quarter' ? `${y} Q${Math.floor(m / 3) + 1}` : `${y}-${String(m + 1).padStart(2, '0')}`; };
+    const withM = list => list.map(t => ({ ...t, ...metricOf(t, M) })).filter(t => t.lt != null);
+    let groups;
+    if (GROUP.size) {
+      const base = withM(filtered(true));
+      groups = [['Внутри группы', base.filter(t => isInside(t.services)), T.accent], ['Через границу', base.filter(t => isCross(t.services)), T.c3]];
+      const [a, b] = groups.map(g => g[1].map(t => t.lt));
+      if (a.length && b.length) $('#insights').insertAdjacentHTML('afterbegin', `<li><b>Балансирующая метрика:</b> эпики через границу группы — медиана <span class="num">${pct(b, .5)}</span> дн., P85 <span class="num">${pct(b, .85)}</span> (n=${b.length}); внутри группы — медиана <span class="num">${pct(a, .5)}</span> дн., P85 <span class="num">${pct(a, .85)}</span> (n=${a.length}).</li>`);
+    } else groups = [['Все', done, T.accent]];
+    const keys = [...new Set(groups.flatMap(([, l]) => l.map(t => bucket(t.end))))].sort();
+    const counts = groups.map(([, l]) => { const b = {}; l.forEach(t => (b[bucket(t.end)] ??= []).push(t.lt)); return b; });
+    $('#trendHint').textContent = GROUP.size
+      ? `Сплошная линия — медиана, пунктир — P85, по ${by === 'quarter' ? 'кварталам' : 'месяцам'} дохода до ${SL[M.to]}. «Внутри»: все сервисы эпика в группе. «Через границу»: эпик трогает группу и хотя бы один сервис вне её. Команда и период действуют, режим группы — нет. Точки с n < 5 ненадёжны.`
+      : `Медиана и P85 по ${by === 'quarter' ? 'кварталам' : 'месяцам'} дохода до ${SL[M.to]}. Выберите группу сервисов (субдомен), чтобы сравнить эпики внутри неё и через её границу.`;
+    draw('chTrend', {
+      legend: legend(),
+      tooltip: tt({ trigger: 'axis', formatter: ps => `<b>${ps[0].axisValue}</b><br>` + ps.map(p => { const g = Math.floor(p.seriesIndex / 2); return `${p.marker}${p.seriesName}: ${p.value ?? '—'} дн.${p.seriesIndex % 2 === 0 ? ` (n=${counts[g][p.axisValue]?.length || 0})` : ''}`; }).join('<br>') }),
+      xAxis: ax('category', { data: keys, splitLine: { show: false } }),
+      yAxis: ax('value', { name: 'дней' }),
+      series: groups.flatMap(([name, , color], i) => [
+        { name: `${name} · медиана`, type: 'line', connectNulls: true, symbolSize: 7, lineStyle: { color, width: 2 }, itemStyle: { color }, data: keys.map(k => counts[i][k] ? pct(counts[i][k], .5) : null) },
+        { name: `${name} · P85`, type: 'line', connectNulls: true, showSymbol: false, lineStyle: { color, width: 1, type: 'dashed' }, itemStyle: { color }, data: keys.map(k => counts[i][k] ? pct(counts[i][k], .85) : null) }
+      ])
+    });
+  }
+
+  // 3. SP boxplot
+  {
+    const g = {}; spDone.forEach(t => (g[t.sp] ??= []).push(t.lt));
+    const keys = Object.keys(g).map(Number).sort((a, b) => a - b);
+    const box = keys.map(k => [pct(g[k], .1), pct(g[k], .25), pct(g[k], .5), pct(g[k], .75), pct(g[k], .9)]);
+    $('#spHint').textContent = `Ящики: 25–75% задач, усы: 10–90%, черта — медиана.${rho != null ? ` Ранговая корреляция r = ${fmt(rho, 2)} (${strength(rho)}).` : ''}`;
+    draw('chSp', {
+      tooltip: tt({ trigger: 'item', formatter: p => { const k = keys[p.dataIndex], b = box[p.dataIndex]; return `<b>${k} SP</b> · ${g[k].length} задач<br>медиана ${b[2]} дн.<br>25–75%: ${b[1]}–${b[3]} дн.<br>10–90%: ${b[0]}–${b[4]} дн.`; } }),
+      xAxis: ax('category', { data: keys.map(String), name: 'SP', nameLocation: 'middle', nameGap: 26, splitLine: { show: false } }),
+      yAxis: ax('value', { name: 'дней' }),
+      series: [{ type: 'boxplot', data: box, itemStyle: { color: color2(T.accent), borderColor: T.accent }, boxWidth: ['30%', '55%'] }]
+    });
+  }
+
+  // 4. число сервисов
+  draw('chNSvc', {
+    legend: legend(),
+    tooltip: tt({ trigger: 'axis' }),
+    xAxis: ax('category', { data: nKeys.map(k => `${nLabel(k)} (n=${byN[k].length})`), name: 'сервисов в задаче', nameLocation: 'middle', nameGap: 26, splitLine: { show: false } }),
+    yAxis: ax('value', { name: 'дней' }),
+    series: [
+      { name: 'Медиана', type: 'bar', data: nKeys.map(k => pct(byN[k], .5)), itemStyle: { color: T.accent }, label: { show: true, position: 'top', color: T.fg } },
+      { name: 'P85', type: 'bar', data: nKeys.map(k => pct(byN[k], .85)), itemStyle: { color: T.c2 }, label: { show: true, position: 'top', color: T.fg } }
+    ]
+  });
+
+  // 5. топ сервисов
+  const svcStat = new Map();
+  tasks.forEach(t => t.services.forEach(s => { const o = svcStat.get(s) || { n: 0, lts: [] }; o.n++; if (t.lt != null) o.lts.push(t.lt); svcStat.set(s, o); }));
+  const topSvc = [...svcStat].sort((a, b) => b[1].n - a[1].n).slice(0, 15);
+  draw('chSvc', {
+    tooltip: tt({ trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: p => { const o = svcStat.get(p[0].name); return `<b>${esc(p[0].name)}</b>${GROUP.has(p[0].name) ? ' · в группе' : ''}<br>${o.n} задач<br>медиана ${pct(o.lts, .5) ?? '—'} дн.<br>P85 ${pct(o.lts, .85) ?? '—'} дн.`; } }),
+    xAxis: ax('value', { minInterval: 1 }),
+    yAxis: ax('category', { data: topSvc.map(s => s[0]), inverse: true, splitLine: { show: false }, axisLabel: { color: T.muted, formatter: v => GROUP.has(v) ? `{g|${v}}` : v, rich: { g: { color: T.accent, fontWeight: 600 } } } }),
+    series: [{ type: 'bar', cursor: 'pointer', data: topSvc.map(s => ({ value: s[1].n, itemStyle: { opacity: GROUP.size && !GROUP.has(s[0]) ? .45 : .9 } })), itemStyle: { color: T.accent }, barCategoryGap: '25%',
+      label: { show: true, position: 'right', color: T.muted, formatter: p => `${p.value} · мед. ${pct(svcStat.get(p.name).lts, .5) ?? '—'}д` } }]
+  }, p => addSvc(p.name));
+
+  // 6. тепловая карта совместных изменений
+  {
+    const names = topSvc.map(s => s[0]), idx = new Map(names.map((n, i) => [n, i]));
+    HEAT_NAMES = names;
+    const m = names.map(() => names.map(() => 0));
+    tasks.forEach(t => { const s = t.services.filter(x => idx.has(x)); for (const a of s) for (const b of s) if (a !== b) m[idx.get(a)][idx.get(b)]++; });
+    const data = []; let max = 1;
+    names.forEach((a, i) => names.forEach((b, j) => { if (i !== j && m[i][j]) { data.push([j, i, m[i][j]]); max = Math.max(max, m[i][j]); } }));
+    const solo = new Map(names.map(n => [n, []]));
+    tasks.forEach(t => { if (t.services.length === 1 && solo.has(t.services[0])) solo.get(t.services[0]).push(t.lt); });
+    const diag = names.map((n, i) => [i, i, solo.get(n).length]);
+    const maxD = Math.max(1, ...diag.map(d => d[2]));
+    const tip = p => {
+      const [j, i, v] = p.data, a = names[i], b = names[j];
+      if (i === j) {
+        const lt = solo.get(a).filter(x => x != null), all = svcStat.get(a).n;
+        return `<b>Только ${esc(a)}</b><br>${v} из ${all} задач сервиса (${fmt(v / all * 100, 0)}%)<br>медиана ${pct(lt, .5) ?? '—'} дн.`;
+      }
+      const uni = svcStat.get(a).n + svcStat.get(b).n - v;
+      return `<b>${esc(a)} + ${esc(b)}</b><br>${v} задач вместе<br>Жаккар ${fmt(v / uni, 2)}`;
+    };
+    draw('chHeat', {
+      grid: { left: 8, right: 16, top: 10, bottom: 50, containLabel: true },
+      tooltip: tt({ trigger: 'item', formatter: tip }),
+      xAxis: ax('category', { data: names, splitLine: { show: false }, axisLabel: { color: T.muted, rotate: 45, interval: 0 } }),
+      yAxis: ax('category', { data: names, inverse: true, splitLine: { show: false }, axisLabel: { color: T.muted, interval: 0 } }),
+      visualMap: [
+        { seriesIndex: 0, min: 0, max, calculable: false, orient: 'horizontal', left: '15%', bottom: 0, itemHeight: 100, itemWidth: 10, text: [String(max), 'вместе 0'], textStyle: { color: T.muted }, inRange: { color: [T.heat0, T.accent] } },
+        { seriesIndex: 1, min: 0, max: maxD, calculable: false, orient: 'horizontal', right: '15%', bottom: 0, itemHeight: 100, itemWidth: 10, text: [String(maxD), 'только он 0'], textStyle: { color: T.muted }, inRange: { color: [T.heat0, T.c2] } }
+      ],
+      series: [
+        { type: 'heatmap', cursor: 'pointer', data, label: { show: names.length <= 15, color: T.fg, fontSize: 10, formatter: p => p.data[2] >= Math.max(2, max * .35) ? p.data[2] : '' }, itemStyle: { borderColor: T.surface, borderWidth: 1 } },
+        { type: 'heatmap', cursor: 'pointer', data: diag, label: { show: true, color: T.fg, fontSize: 10, fontWeight: 600, formatter: p => p.data[2] || '' }, itemStyle: { borderColor: T.c2, borderWidth: 1 } }
+      ]
+    }, p => { if (p.seriesType !== 'heatmap') return; const [j, i] = p.data; const a = HEAT_NAMES[i], b = HEAT_NAMES[j]; if (!a || !b) return; [a, b].forEach(s => GROUP.add(s)); render(); });
+  }
+
+  // команды
+  const multiTeam = TEAMS.length >= 2;
+  ['#cardTeamSvc', '#cardTeam', '#cardSpread'].forEach(s => { $(s).hidden = !multiTeam; });
+  if (multiTeam) {
+    // сервис → команды
+    const spread = new Map();
+    tasks.forEach(t => t.services.forEach(s => { const m = spread.get(s) || new Map(); m.set(t.team, (m.get(t.team) || 0) + 1); spread.set(s, m); }));
+    const spreadRows = [...spread].map(([s, m]) => {
+      const n = [...m.values()].reduce((a, b) => a + b, 0), [top, second] = [...m].sort((a, b) => b[1] - a[1]);
+      const share = top[1] / n, share2 = second ? second[1] / n : 0;
+      // явный владелец: отрыв от второй команды минимум вдвое (порог 50% от всех ломается на длинном хвосте разовых заходов)
+      return { s, n, teams: m.size, top: top[0], share, second: second?.[0], share2, owned: share >= 2 * share2 };
+    });
+
+    // теплокарта команды × сервисы
+    const tCount = new Map(); tasks.forEach(t => tCount.set(t.team, (tCount.get(t.team) || 0) + 1));
+    const teamsTop = [...tCount].sort((a, b) => b[1] - a[1]).slice(0, 15).map(x => x[0]);
+    const svcs = topSvc.map(s => s[0]);
+    const data = []; let max = 1;
+    teamsTop.forEach((tm, i) => svcs.forEach((s, j) => { const v = spread.get(s)?.get(tm) || 0; if (v) { data.push([j, i, v]); max = Math.max(max, v); } }));
+    draw('chTeamSvc', {
+      grid: { left: 8, right: 16, top: 10, bottom: 50, containLabel: true },
+      tooltip: tt({ trigger: 'item', formatter: p => { const [j, i, v] = p.data, s = svcs[j], all = spread.get(s); const n = [...all.values()].reduce((a, b) => a + b, 0); return `<b>${esc(teamsTop[i])}</b> → ${esc(s)}<br>${v} из ${n} задач сервиса (${fmt(v / n * 100, 0)}%)<br>всего команд у сервиса: ${all.size}`; } }),
+      xAxis: ax('category', { data: svcs, splitLine: { show: false }, axisLabel: { color: T.muted, rotate: 45, interval: 0, formatter: s => `${s} (${spread.get(s)?.size ?? 0})` } }),
+      yAxis: ax('category', { data: teamsTop, inverse: true, splitLine: { show: false }, axisLabel: { color: T.muted, interval: 0 } }),
+      visualMap: { min: 0, max, calculable: false, orient: 'horizontal', left: 'center', bottom: 0, itemHeight: 120, itemWidth: 10, text: [String(max), '0'], textStyle: { color: T.muted }, inRange: { color: [T.heat0, T.accent] } },
+      series: [{ type: 'heatmap', data, label: { show: true, color: T.fg, fontSize: 10, formatter: p => p.data[2] >= Math.max(2, max * .3) ? p.data[2] : '' }, itemStyle: { borderColor: T.surface, borderWidth: 1 } }]
+    });
+
+    // метрика по командам
+    const byTeam = new Map(); done.forEach(t => { const a = byTeam.get(t.team) || []; a.push(t.lt); byTeam.set(t.team, a); });
+    const tRows = [...byTeam].sort((a, b) => b[1].length - a[1].length).slice(0, 15);
+    draw('chTeam', {
+      legend: legend(),
+      tooltip: tt({ trigger: 'axis', axisPointer: { type: 'shadow' } }),
+      xAxis: ax('value', { name: 'дней' }),
+      yAxis: ax('category', { data: tRows.map(([tm, a]) => `${tm} (${a.length})`), inverse: true, splitLine: { show: false } }),
+      series: [
+        { name: 'Медиана', type: 'bar', data: tRows.map(([, a]) => pct(a, .5)), itemStyle: { color: T.accent }, label: { show: true, position: 'right', color: T.fg, fontSize: 11 } },
+        { name: 'P85', type: 'bar', data: tRows.map(([, a]) => pct(a, .85)), itemStyle: { color: T.c2 }, label: { show: true, position: 'right', color: T.fg, fontSize: 11 } }
+      ]
+    });
+
+    // таблица размазанности
+    const pc = v => `${fmt(v * 100, 0)}%`;
+    const sr = spreadRows.filter(r => r.n >= 3)
+      .sort((a, b) => a.owned - b.owned || a.share / (a.share2 || 1e-9) - b.share / (b.share2 || 1e-9) || b.teams - a.teams).slice(0, 15);
+    $('#tSpread').innerHTML = sr.length ? `<table><thead><tr><th>Сервис</th>`
+      + `<th class="r">Эпиков${tip('Эпики из текущей выборки, где сервис указан в «Репозитории».')}</th>`
+      + `<th class="r">Команд${tip('Сколько разных команд (по полю команды эпика) делали эпики с этим сервисом.')}</th>`
+      + `<th>Основная${tip('Команда с наибольшим числом эпиков по сервису. Доля = её эпики / все эпики сервиса.')}</th>`
+      + `<th>Вторая${tip('Следующая по числу эпиков команда и её доля. Если команда одна — прочерк.')}</th>`
+      + `<th>Владелец${tip('Есть, если доля основной команды минимум вдвое больше доли второй. Например, 36% против 2% — владелец есть; 37% против 30% — нет.')}</th></tr></thead><tbody>${
+      sr.map(r => `<tr><td>${esc(r.s)}</td><td class="r num">${r.n}</td><td class="r num">${r.teams}</td>`
+        + `<td>${esc(r.top)} <span class="num">${pc(r.share)}</span></td>`
+        + `<td>${r.second == null ? '<span class="svc">—</span>' : `${esc(r.second)} <span class="num">${pc(r.share2)}</span>`}</td>`
+        + `<td>${r.owned ? '<span class="chip ok">есть</span>' : '<span class="chip warn">нет</span>'}</td></tr>`).join('')
+    }</tbody></table>` : '<p class="empty">Мало данных: нужны сервисы хотя бы с 3 эпиками.</p>';
+
+    const solid = spreadRows.filter(r => r.n >= 5), owned = solid.filter(r => r.owned);
+    if (solid.length) $('#insights').insertAdjacentHTML('beforeend', `<li><b>Владельцы сервисов:</b> явный владелец есть у <b class="num">${pc(owned.length / solid.length)}</b> сервисов (${owned.length} из ${solid.length} с 5+ эпиками). Медианная доля основной команды — <span class="num">${pc(pct(solid.map(r => r.share), .5))}</span>, второй — <span class="num">${pc(pct(solid.map(r => r.share2), .5))}</span>.${
+      tip('Владелец — фактический, по данным: команда эпика с наибольшим числом эпиков по сервису. Явный — если её доля минимум вдвое больше доли второй команды. Сервисы с менее чем 5 эпиками не учитываются, чтобы не делать выводов по 2–3 эпикам. Команда берётся из эпика, а не из коммитов.')}</li>`);
+  }
+
+  // 7. CFD
+  {
+    const st = STAGES.filter(k => HAS.has(k));
+    const BAND = { created: ['Бэклог', T.c4], ready: ['READY', T.c6], in_refinement: ['REFINEMENT', T.c5], to_dev: ['TO_DEV', T.c2], in_dev: ['IN_DEV', T.accent], ready_to_deploy: ['READY_TO_DEPLOY', T.c3], done: ['RELEASED', T.line] };
+    const all = sel.flatMap(t => st.map(k => eff(t, k)).filter(v => v != null));
+    const series = [];
+    if (all.length) {
+      const d0 = Math.min(...all), len = REF - d0 + 1;
+      const reached = st.map(k => { const diff = new Array(len + 1).fill(0); sel.forEach(t => { const v = eff(t, k); if (v != null) diff[v - d0]++; }); let c = 0; return diff.slice(0, len).map(x => (c += x)); });
+      for (let i = st.length - 1; i >= 0; i--) {
+        const [name, color] = BAND[st[i]];
+        series.push({ name, type: 'line', stack: 'cfd', showSymbol: false, lineStyle: { width: 0 }, areaStyle: { color, opacity: .85 }, itemStyle: { color },
+          data: reached[i].map((v, d) => [(d0 + d) * DAY, v - (i + 1 < st.length ? reached[i + 1][d] : 0)]) });
+      }
+    }
+    draw('chCfd', {
+      legend: legend(),
+      tooltip: tt({ trigger: 'axis' }),
+      xAxis: ax('time', { splitLine: { show: false } }),
+      yAxis: ax('value', { name: 'задач', minInterval: 1 }),
+      series
+    });
+  }
+
+  // 8. throughput + WIP
+  $('#flowHint').textContent = `Столбцы — сколько задач дошло до ${SL[M.to]} за неделю, линия — сколько задач каждый день было между ${SL[M.from]} и ${SL[M.to]}.`;
+  {
+    const wip = [];
+    if (inM.length) {
+      const d0 = Math.min(...inM.map(t => t.start)), len = REF - d0 + 2, diff = new Array(len).fill(0);
+      inM.forEach(t => { diff[t.start - d0]++; if (t.end != null) diff[Math.max(t.start, t.end) - d0 + 1]--; });
+      let c = 0; for (let i = 0; i < len - 1; i++) { c += diff[i]; wip.push([(d0 + i) * DAY, c]); }
+    }
+    draw('chFlow', {
+      legend: legend(),
+      tooltip: tt({ trigger: 'axis' }),
+      xAxis: ax('time', { splitLine: { show: false } }),
+      yAxis: [ax('value', { name: 'за неделю', minInterval: 1 }), ax('value', { name: 'WIP', minInterval: 1, splitLine: { show: false } })],
+      series: [
+        { name: `Дошли до ${SL[M.to]}`, type: 'bar', data: [...weeks].sort((a, b) => a[0] - b[0]).map(([w, n]) => [(w + 3) * DAY, n]), itemStyle: { color: T.accent, opacity: .8 }, barMaxWidth: 18 },
+        { name: 'WIP', type: 'line', yAxisIndex: 1, data: wip, showSymbol: false, step: 'end', lineStyle: { color: T.c2, width: 1.5 }, itemStyle: { color: T.c2 }, areaStyle: { color: color2(T.c2) } }
+      ]
+    });
+  }
+
+  // таблица комбинаций
+  $('#tCombos').innerHTML = topCombos.length ? `<table><thead><tr><th>Сервисы</th><th class="r">Задач</th><th class="r">Медиана</th><th class="r">P85</th></tr></thead><tbody>${
+    topCombos.map(([k, o]) => `<tr><td>${esc(k)}</td><td class="r num">${o.n}</td><td class="r num">${pct(o.lts, .5) ?? '—'}</td><td class="r num">${pct(o.lts, .85) ?? '—'}</td></tr>`).join('')
+  }</tbody></table>` : '<p class="empty">Нет задач, затрагивающих несколько сервисов.</p>';
+
+  // таблица задач в работе
+  $('#agingHint').textContent = `Задачи, прошедшие ${SL[M.from]}, но ещё не дошедшие до ${SL[M.to]}. Возраст — от ${SL[M.from]} до ${fmtDate(REF)}. Метка ставится, если возраст больше P85 или P95 завершённых.`;
+  const aging = open.map(t => ({ ...t, age: REF - t.start + 1 })).sort((a, b) => b.age - a.age).slice(0, 15);
+  const stageOf = t => { let s = '—'; STAGES.forEach(k => { if (t.d[k] != null) s = SL[k]; }); return s; };
+  $('#tAging').innerHTML = aging.length ? `<table><thead><tr><th>Задача</th><th>Стадия</th><th class="r">Возраст</th><th></th><th>Сервисы</th></tr></thead><tbody>${
+    aging.map(t => `<tr><td class="num">${t.url ? `<a href="${esc(t.url)}" target="_blank" rel="noopener">${esc(t.task)}</a>` : esc(t.task)}<div class="svc">${esc(t.team)}</div></td><td>${stageOf(t)}</td><td class="r num">${t.age} дн.</td><td>${
+      p95 != null && t.age > p95 ? '<span class="chip crit">старше P95</span>' : p85 != null && t.age > p85 ? '<span class="chip warn">старше P85</span>' : ''
+    }</td><td class="svc">${esc(t.services.join(', '))}</td></tr>`).join('')
+  }</tbody></table>` : '<p class="empty">Открытых задач нет.</p>';
+}
+
+/* ---------- события ---------- */
+function readFile(f) {
+  const rd = new FileReader();
+  rd.onload = () => {
+    const txt = rd.result;
+    if (txt.includes(String.fromCharCode(0xFFFD))) { const r2 = new FileReader(); r2.onload = () => load(r2.result, `Файл ${esc(f.name)}`); r2.readAsText(f, 'windows-1251'); }
+    else load(txt, `Файл ${esc(f.name)}`);
+  };
+  rd.readAsText(f, 'utf-8');
+}
+function tryAdd() {
+  const inp = $('#fSvcAdd'), v = inp.value.trim().toLowerCase();
+  if (!v) return;
+  if (SVCS.includes(v)) { inp.value = ''; inp.classList.remove('bad'); addSvc(v); }
+  else inp.classList.add('bad');
+}
+$('#fSvcAdd').addEventListener('change', tryAdd);
+$('#fSvcAdd').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); tryAdd(); } });
+$('#fSvcAdd').addEventListener('input', e => e.target.classList.remove('bad'));
+$('#group').addEventListener('click', e => { const s = e.target.closest('[data-rm]')?.dataset.rm; if (s) { GROUP.delete(s); render(); } });
+$('#btnAll').addEventListener('click', () => { GROUP.clear(); render(); });
+// всплывающие подсказки: наведение, фокус с клавиатуры, тап на телефоне
+{
+  const box = document.createElement('div'); box.id = 'tipBox'; box.hidden = true; box.setAttribute('role', 'tooltip'); document.body.append(box);
+  let cur = null;
+  const show = el => {
+    cur = el; box.textContent = el.dataset.tip; box.hidden = false;
+    const r = el.getBoundingClientRect(), b = box.getBoundingClientRect();
+    const left = Math.min(Math.max(16, r.left + r.width / 2 - b.width / 2), innerWidth - b.width - 16);
+    const top = r.bottom + 8 + b.height > innerHeight ? r.top - b.height - 8 : r.bottom + 8;
+    box.style.left = left + 'px'; box.style.top = top + 'px';
+  };
+  const hide = () => { cur = null; box.hidden = true; };
+  document.addEventListener('mouseover', e => { const el = e.target.closest('.tip'); if (el) show(el); else if (cur && document.activeElement !== cur) hide(); });
+  document.addEventListener('focusin', e => { const el = e.target.closest('.tip'); if (el) show(el); });
+  document.addEventListener('focusout', e => { if (e.target.closest('.tip')) hide(); });
+  document.addEventListener('click', e => { const el = e.target.closest('.tip'); if (el) show(el); else hide(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') hide(); });
+  addEventListener('scroll', hide, { passive: true });
+}
+$('#file').addEventListener('change', e => { if (e.target.files[0]) readFile(e.target.files[0]); e.target.value = ''; });
+$('#btnDemo').addEventListener('click', () => load(demoCSV(), 'Демо-данные (сгенерированы)'));
+$('#btnReset').addEventListener('click', () => { GROUP.clear(); $('#fMode').value = 'any'; $('#fTeam').value = ''; $('#fRef').value = ''; $('#fHasSvc').value = ''; SPSEL.clear(); renderSp(); $('#fQ').value = ''; $('#fFrom').value = ''; $('#fTo').value = ''; render(); });
+['#fMode', '#fTeam', '#fRef', '#fHasSvc', '#fDateSt', '#fTrendBy'].forEach(s => $(s).addEventListener('change', render));
+$('#fSp').addEventListener('click', e => {
+  const v = e.target.closest('[data-sp]')?.dataset.sp; if (!v) return;
+  SPSEL.has(v) ? SPSEL.delete(v) : SPSEL.add(v); renderSp(); render();
+});
+['#fFrom', '#fTo'].forEach(s => $(s).addEventListener('change', () => { $('#fQ').value = ''; render(); }));
+$('#fQ').addEventListener('change', e => { const [a, b] = (e.target.value || '|').split('|'); $('#fFrom').value = a; $('#fTo').value = b; render(); });
+$('#fFromSt').addEventListener('change', () => { fixPair('from'); render(); });
+$('#fToSt').addEventListener('change', () => { fixPair('to'); render(); });
+$('#btnCopy').addEventListener('click', () => {
+  const txt = $('#fmt').textContent;
+  navigator.clipboard?.writeText(txt).then(() => { $('#btnCopy').textContent = 'Скопировано'; }).catch(() => {
+    const r = document.createRange(); r.selectNodeContents($('#fmt')); const s = getSelection(); s.removeAllRanges(); s.addRange(r);
+  });
+});
+let dragDepth = 0;
+addEventListener('dragenter', e => { e.preventDefault(); dragDepth++; document.body.classList.add('dragging'); });
+addEventListener('dragleave', () => { if (--dragDepth <= 0) { dragDepth = 0; document.body.classList.remove('dragging'); } });
+addEventListener('dragover', e => e.preventDefault());
+addEventListener('drop', e => { e.preventDefault(); dragDepth = 0; document.body.classList.remove('dragging'); const f = e.dataTransfer.files[0]; if (f) readFile(f); });
+addEventListener('resize', () => Object.values(charts).forEach(c => c.resize()));
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => ALL.length && render());
+new MutationObserver(() => ALL.length && render()).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+load(demoCSV(), 'Демо-данные (сгенерированы)');
+</script>
